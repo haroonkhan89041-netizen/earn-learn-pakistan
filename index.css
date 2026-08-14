@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  :focus-visible { outline: 2px solid #1D63ED; outline-offset: 2px; }
+  ::selection { background: #16A34A; color: white; }
+}
+
+@layer components {
+  .container-app { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+  .card { @apply bg-white rounded-2xl border border-navy-100 shadow-card; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-brand-blue text-white hover:bg-brand-blue-dark active:scale-[0.98]; }
+  .btn-secondary { @apply btn bg-navy-900 text-white hover:bg-navy-800 active:scale-[0.98]; }
+  .btn-outline { @apply btn border border-navy-200 text-navy-900 hover:bg-navy-50; }
+  .btn-success { @apply btn bg-brand-green text-white hover:bg-brand-green-dark active:scale-[0.98]; }
+  .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold; }
+  .badge-verified { @apply badge bg-brand-green/10 text-brand-green-dark; }
+  .badge-demo { @apply badge bg-brand-amber/10 text-amber-700; }
+  .input { @apply w-full rounded-xl border border-navy-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-400 focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition; }
+  .label { @apply mb-1.5 block text-sm font-medium text-navy-700; }
+  .skeleton { @apply animate-pulse bg-navy-100 rounded-lg; }
+}
