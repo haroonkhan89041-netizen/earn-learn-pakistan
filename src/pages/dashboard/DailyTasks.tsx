@@ -18,10 +18,10 @@ export function DailyTasks() {
     (async () => {
       const { data: taskRows } = await supabase.from('tasks').select('*').eq('status', 'published').order('created_at', { ascending: false });
       if (taskRows) setTasks(taskRows as DailyTask[]);
-      const { data: submissions } = await supabase.from('task_submissions').select('task_id, status').eq('user_id', user.id);
+      const { data: submissions } = await supabase.from('task_submissions').select('task_id, status').eq('user_id', user.id).order('created_at', { ascending: false });
       if (submissions) {
         const map: Record<string, SubmissionStatus> = {};
-        submissions.forEach((s) => { map[s.task_id] = s.status as SubmissionStatus; });
+        submissions.forEach((s) => { if (!(s.task_id in map)) map[s.task_id] = s.status as SubmissionStatus; });
         setStatuses(map);
       }
       setLoading(false);
@@ -41,6 +41,7 @@ export function DailyTasks() {
     setSubmitting(null);
     if (error) return toast.error(error.message);
     setStatuses((s) => ({ ...s, [task.id]: 'pending' }));
+    setProofs((p) => ({ ...p, [task.id]: '' }));
     toast.success('Task submitted. Points will be added only after admin approval.');
   }
 
@@ -54,10 +55,9 @@ export function DailyTasks() {
           <p className="font-display text-base font-bold text-navy-900">{t.title}</p><p className="mt-1 text-sm text-navy-500">{t.description}</p>
           <p className="mt-3 whitespace-pre-line text-sm text-navy-600">{t.instructions}</p>
           {t.ends_at && <p className="mt-3 flex items-center gap-1 text-xs text-navy-400"><Clock size={13} /> Ends {new Date(t.ends_at).toLocaleString()}</p>}
-          {!status && <div className="mt-4 space-y-2">{t.proof_required && <input className="input" placeholder={t.proof_type === 'url' ? 'Paste proof URL' : 'Enter your proof'} value={proofs[t.id] || ''} onChange={(e) => setProofs((p) => ({ ...p, [t.id]: e.target.value }))} />}<button className="btn-primary w-full" onClick={() => submit(t)} disabled={submitting === t.id}>{submitting === t.id ? 'Submitting…' : 'Submit task'}</button></div>}
+          {(!status || status === 'rejected') && <div className="mt-4 space-y-2">{status === 'rejected' && <p className="text-xs font-semibold text-red-600">Previous submission was rejected. You can correct your proof and resubmit.</p>}{t.proof_required && <input className="input" placeholder={t.proof_type === 'url' ? 'Paste proof URL' : 'Enter your proof'} value={proofs[t.id] || ''} onChange={(e) => setProofs((p) => ({ ...p, [t.id]: e.target.value }))} />}<button className="btn-primary w-full" onClick={() => submit(t)} disabled={submitting === t.id}>{submitting === t.id ? 'Submitting…' : status === 'rejected' ? 'Resubmit task' : 'Submit task'}</button></div>}
           {status === 'pending' && <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-brand-amber/10 py-2.5 text-sm font-semibold text-amber-700"><CheckCircle2 size={16} /> Pending admin review</div>}
           {status === 'approved' && <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-brand-green/10 py-2.5 text-sm font-semibold text-brand-green-dark"><CheckCircle2 size={16} /> Approved — points credited</div>}
-          {status === 'rejected' && <div className="mt-4 rounded-xl bg-red-50 py-2.5 text-center text-sm font-semibold text-red-600">Rejected — check your proof and try again</div>}
         </div>;
       })}</div>}
     </div>
