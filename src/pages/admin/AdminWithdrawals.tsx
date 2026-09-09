@@ -23,31 +23,46 @@ const statusStyle: Record<WithdrawalStatus, string> = {
   rejected: 'bg-red-100 text-red-700',
 };
 
+const DEFAULT_RATE = 0.5;
+
 export function AdminWithdrawals() {
   const [rows, setRows] = useState<Row[]>([]);
   const [filter, setFilter] = useState<WithdrawalStatus | 'all'>('pending');
+  const [rate, setRate] = useState(DEFAULT_RATE);
   const { confirm, dialog } = useConfirmDialog();
 
   async function load() {
     if (!isSupabaseConfigured) return;
-    const { data, error } = await supabase
-      .from('withdrawals')
-      .select('id, amount, method, account_details, status, created_at, profiles!withdrawals_user_id_fkey(full_name)')
-      .order('created_at', { ascending: false });
+    const [{ data, error }, { data: settings }] = await Promise.all([
+      supabase
+        .from('withdrawals')
+        .select('id, amount, method, account_details, status, created_at, profiles!withdrawals_user_id_fkey(full_name)')
+        .order('created_at', { ascending: false }),
+      supabase.from('site_settings').select('key, value').eq('key', 'points_to_pkr_rate').maybeSingle(),
+    ]);
+    if (settings?.value != null) setRate(Number(settings.value) || DEFAULT_RATE);
     if (error) { toast.error(error.message); return; }
-    setRows((data ?? []).map((r: any) => ({
-      id: r.id,
-      user: r.profiles?.full_name ?? 'Unknown user',
-      points: Number(r.amount),
-      pkr: Number(r.amount),
-      method: r.method,
-      account: r.account_details?.account_number ?? '—',
-      status: r.status,
-      date: new Date(r.created_at).toLocaleDateString('en-PK'),
-    })));
+    setRows((data ?? []).map((r: any) => {
+      const points = Number(r.amount) || 0;
+      return {
+        id: r.id,
+        user: r.profiles?.full_name ?? 'Unknown user',
+        points,
+        pkr: points * rate,
+        method: r.method,
+        account: r.account_details?.account_number ?? '—',
+        status: r.status,
+        date: new Date(r.created_at).toLocaleDateString('en-PK'),
+      };
+    }));
   }
 
   useEffect(() => { void load(); }, []);
+
+  // Reload once when the configured conversion rate changes so displayed PKR is always accurate.
+  useEffect(() => {
+    setRows((prev) => prev.map((r) => ({ ...r, pkr: r.points * rate })));
+  }, [rate]);
 
   const filtered = filter === 'all' ? rows : rows.filter((r) => r.status === filter);
 
@@ -93,7 +108,7 @@ export function AdminWithdrawals() {
       {dialog}
       <div>
         <h1 className="font-display text-2xl font-extrabold text-navy-900">Withdrawals</h1>
-        <p className="text-sm text-navy-500">Review requests, approve or reject them, then mark approved payments as paid after the transfer is actually completed.</p>
+        <p className="text-sm text-navy-500">Review requests, approve or reject them, then mark approved payments as paid after the transfer is actually completed. Conversion: 1 point = PKR {rate}.</p>
       </div>
       <div className="flex flex-wrap gap-2">
         {(['pending', 'approved', 'paid', 'rejected', 'all'] as const).map((f) => (
@@ -120,6 +135,7 @@ export function AdminWithdrawals() {
             ))}
           </tbody>
         </table>
+        {filtered.length === 0 && <p className="p-5 text-sm text-navy-400">No {filter === 'all' ? '' : filter + ' '}withdrawal requests.</p>}
       </div>
     </div>
   );
