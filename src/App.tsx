@@ -38,6 +38,7 @@ import { AdminWithdrawals } from '@/pages/admin/AdminWithdrawals';
 import { AdminAds } from '@/pages/admin/AdminAds';
 import { AdminAnalytics } from '@/pages/admin/AdminAnalytics';
 import { AdminSettings } from '@/pages/admin/AdminSettings';
+import { AdminSupport } from '@/pages/admin/AdminSupport';
 
 export default function App() {
   return (
@@ -53,7 +54,7 @@ export default function App() {
             <Route index element={<Dashboard />} /><Route path="opportunities" element={<Opportunities />} /><Route path="tasks" element={<DailyTasks />} /><Route path="learn" element={<LearnSkills />} /><Route path="learn/:slug" element={<CourseDetail />} /><Route path="rewards" element={<Rewards />} /><Route path="referrals" element={<Referrals />} /><Route path="leaderboard" element={<Leaderboard />} /><Route path="notifications" element={<Notifications />} /><Route path="profile" element={<Profile />} /><Route path="support" element={<Support />} />
           </Route>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminOverview />} /><Route path="users" element={<AdminUsers />} /><Route path="opportunities" element={<AdminOpportunities />} /><Route path="tasks" element={<AdminTasks />} /><Route path="courses" element={<AdminCourses />} /><Route path="withdrawals" element={<AdminWithdrawals />} /><Route path="ads" element={<AdminAds />} /><Route path="analytics" element={<AdminAnalytics />} /><Route path="settings" element={<AdminSettings />} />
+            <Route index element={<AdminOverview />} /><Route path="users" element={<AdminUsers />} /><Route path="opportunities" element={<AdminOpportunities />} /><Route path="tasks" element={<AdminTasks />} /><Route path="courses" element={<AdminCourses />} /><Route path="withdrawals" element={<AdminWithdrawals />} /><Route path="ads" element={<AdminAds />} /><Route path="analytics" element={<AdminAnalytics />} /><Route path="settings" element={<AdminSettings />} /><Route path="support" element={<AdminSupport />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
