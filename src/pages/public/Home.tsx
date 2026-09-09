@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, BookOpen, ListChecks, Compass, TrendingUp, Users, Wallet, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight, ShieldCheck, BookOpen, ListChecks, TrendingUp, Users, Wallet, ChevronDown } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { DEMO_OPPORTUNITIES, DEMO_COURSES } from '@/data/demoData';
-import { VerifiedBadge, DifficultyBadge } from '@/components/ui/Badge';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { VerifiedBadge } from '@/components/ui/Badge';
 
 const steps = [
   { icon: Users, title: 'Create a free account', text: 'Sign up in under a minute — no fees, ever.' },
@@ -22,7 +23,31 @@ const heroImage = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?aut
 const learningImage = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=85';
 const workImage = 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1000&q=85';
 
+interface OpportunityCard { id: string; title: string; description: string; earning_estimate: string | null; }
+interface CourseCard { id: string; title: string; description: string | null; level: string; }
+
 export function Home() {
+  const [opportunities, setOpportunities] = useState<OpportunityCard[]>([]);
+  const [courses, setCourses] = useState<CourseCard[]>([]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setOpportunities(DEMO_OPPORTUNITIES.filter((o) => o.is_featured).slice(0, 3).map((o) => ({ id: o.id, title: o.title, description: o.description, earning_estimate: o.estimated_earning })));
+      setCourses(DEMO_COURSES.slice(0, 6).map((c) => ({ id: c.id, title: c.title, description: null, level: c.difficulty })));
+      return;
+    }
+
+    const loadContent = async () => {
+      const [opportunitiesResult, coursesResult] = await Promise.all([
+        supabase.from('opportunities').select('id,title,description,earning_estimate').eq('status', 'published').eq('verification_status', 'verified').eq('featured', true).order('created_at', { ascending: false }).limit(3),
+        supabase.from('courses').select('id,title,description,level').eq('status', 'published').order('created_at', { ascending: false }).limit(6),
+      ]);
+      if (!opportunitiesResult.error && opportunitiesResult.data) setOpportunities(opportunitiesResult.data as OpportunityCard[]);
+      if (!coursesResult.error && coursesResult.data) setCourses(coursesResult.data as CourseCard[]);
+    };
+    void loadContent();
+  }, []);
+
   return (
     <div>
       <section className="relative overflow-hidden bg-navy-900">
@@ -47,9 +72,9 @@ export function Home() {
 
       <section className="bg-navy-50/60 py-16 md:py-20"><div className="container-app"><div className="grid items-center gap-8 md:grid-cols-2"><div className="overflow-hidden rounded-3xl shadow-lg"><img src={learningImage} alt="People learning digital skills together" className="h-72 w-full object-cover md:h-80" loading="lazy" /></div><div><span className="badge bg-brand-green/10 text-brand-green-dark">Learn first</span><h2 className="mt-3 font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Turn learning into practical progress</h2><p className="mt-3 text-navy-500">Start with beginner-friendly lessons, build useful digital skills, then use verified tasks and opportunities to put those skills into practice.</p><Link to="/learn" className="btn-outline mt-5 inline-flex">Explore free courses <ArrowRight size={16} /></Link></div></div></div></section>
 
-      <section className="container-app py-16 md:py-20"><div className="mb-8 flex items-end justify-between"><div><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Featured opportunities</h2><p className="mt-1 text-sm text-navy-500">Admin-verified. Pay and availability vary.</p></div><Link to="/opportunities" className="hidden text-sm font-semibold text-brand-blue sm:block">View all →</Link></div><div className="grid gap-4 md:grid-cols-3">{DEMO_OPPORTUNITIES.filter((o) => o.is_featured).map((op, i) => <div key={op.id} className="card flex flex-col overflow-hidden"><img src={[workImage, heroImage, learningImage][i % 3]} alt="Professional online work" className="h-40 w-full object-cover" loading="lazy" /><div className="flex flex-1 flex-col p-5"><div className="mb-2 flex items-center gap-2">{op.is_verified && <VerifiedBadge />}<DifficultyBadge level={op.difficulty} /></div><p className="font-display text-base font-bold text-navy-900">{op.title}</p><p className="mt-1 flex-1 text-sm text-navy-500">{op.description}</p><div className="mt-4 flex items-center justify-between text-xs text-navy-400"><span>{op.time_required}</span><span className="font-mono font-semibold text-brand-green-dark">{op.estimated_earning}</span></div></div></div>)}</div></section>
+      <section className="container-app py-16 md:py-20"><div className="mb-8 flex items-end justify-between"><div><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Featured opportunities</h2><p className="mt-1 text-sm text-navy-500">Admin-verified. Pay and availability vary.</p></div><Link to="/opportunities" className="hidden text-sm font-semibold text-brand-blue sm:block">View all →</Link></div><div className="grid gap-4 md:grid-cols-3">{opportunities.map((op, i) => <div key={op.id} className="card flex flex-col overflow-hidden"><img src={[workImage, heroImage, learningImage][i % 3]} alt="Professional online work" className="h-40 w-full object-cover" loading="lazy" /><div className="flex flex-1 flex-col p-5"><div className="mb-2 flex items-center gap-2"><VerifiedBadge /></div><p className="font-display text-base font-bold text-navy-900">{op.title}</p><p className="mt-1 flex-1 text-sm text-navy-500">{op.description}</p><div className="mt-4 flex items-center justify-between text-xs text-navy-400"><span>Verified opportunity</span><span className="font-mono font-semibold text-brand-green-dark">{op.earning_estimate || 'Varies'}</span></div></div></div>)}</div></section>
 
-      <section className="bg-navy-50/60 py-16 md:py-20"><div className="container-app"><div className="mb-8 flex items-end justify-between"><div><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Popular skills to learn</h2><p className="mt-1 text-sm text-navy-500">Practical skills you can build at your own pace.</p></div><Link to="/learn" className="hidden text-sm font-semibold text-brand-blue sm:block">View courses →</Link></div><div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">{DEMO_COURSES.slice(0, 6).map((c) => <div key={c.id} className="card flex items-center gap-4 p-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green-dark"><BookOpen size={20} /></div><div><p className="font-display text-sm font-bold text-navy-900">{c.title}</p><p className="text-xs text-navy-500">{c.lesson_count} lessons · {c.difficulty}</p></div></div>)}</div></div></section>
+      <section className="bg-navy-50/60 py-16 md:py-20"><div className="container-app"><div className="mb-8 flex items-end justify-between"><div><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Popular skills to learn</h2><p className="mt-1 text-sm text-navy-500">Practical skills you can build at your own pace.</p></div><Link to="/learn" className="hidden text-sm font-semibold text-brand-blue sm:block">View courses →</Link></div><div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">{courses.map((c) => <div key={c.id} className="card flex items-center gap-4 p-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green-dark"><BookOpen size={20} /></div><div><p className="font-display text-sm font-bold text-navy-900">{c.title}</p><p className="text-xs capitalize text-navy-500">{c.level} level</p></div></div>)}</div></div></section>
 
       <section className="bg-navy-900 py-16 text-white md:py-20"><div className="container-app grid items-center gap-10 md:grid-cols-2"><div><span className="badge bg-white/10 text-white">Verified task system</span><h2 className="mt-3 font-display text-2xl font-extrabold md:text-3xl">Daily tasks, real points</h2><p className="mt-3 max-w-md text-navy-300">Short articles, videos, quizzes, and skill lessons — each one rewards points only after your completion is verified.</p><Link to="/signup" className="btn-success mt-6 inline-flex">Start earning points <ArrowRight size={16} /></Link></div><div className="overflow-hidden rounded-3xl border border-white/10 shadow-2xl"><img src={workImage} alt="Professional working on digital tasks" className="h-64 w-full object-cover md:h-80" loading="lazy" /></div></div></section>
 
