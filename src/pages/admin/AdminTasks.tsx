@@ -32,7 +32,6 @@ export function AdminTasks() {
     const fd = new FormData(form);
     const points = Number(fd.get('points') || 0);
     if (!Number.isInteger(points) || points < 1) { toast.error('Reward points must be a positive whole number'); return; }
-    const minutes = Number(fd.get('minutes') || 0);
     const payload = {
       title: String(fd.get('title') || ''),
       description: String(fd.get('description') || ''),
@@ -44,7 +43,6 @@ export function AdminTasks() {
       starts_at: null,
       ends_at: null,
       max_completions: null,
-      ...(minutes > 0 ? { duration_minutes: minutes } : {}),
     };
     if (isSupabaseConfigured) {
       const { data, error } = await supabase.from('tasks').insert(payload).select().single();
@@ -53,7 +51,6 @@ export function AdminTasks() {
     }
     setShowForm(false);
     form.reset();
-    setDefaultReward(String(defaultReward));
     toast.success('Task created');
   }
 
@@ -95,10 +92,6 @@ export function AdminTasks() {
           <div>
             <label className="label">Reward points</label>
             <input name="points" required type="number" min="1" step="1" defaultValue={defaultReward} className="input" />
-          </div>
-          <div>
-            <label className="label">Estimated minutes (optional)</label>
-            <input name="minutes" type="number" min="1" placeholder="e.g. 10" className="input" />
           </div>
           <div className="sm:col-span-2 flex gap-2">
             <button className="btn-primary">Create task</button>
