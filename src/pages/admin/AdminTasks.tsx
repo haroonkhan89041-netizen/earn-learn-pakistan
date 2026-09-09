@@ -1,4 +1,5 @@
 import { useEffect, useState, FormEvent } from 'react';
+import toast from 'react-hot-toast';
 import { Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import type { DailyTask, TaskSubmission } from '@/types';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
