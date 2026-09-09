@@ -6,16 +6,15 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type { WithdrawalStatus, WithdrawalMethod } from '@/types';
 
 interface Row {
-  id: string; user: string; points: number; pkr: number; method: WithdrawalMethod;
-  account: string; status: WithdrawalStatus; date: string;
+  id: string;
+  user: string;
+  points: number;
+  pkr: number;
+  method: WithdrawalMethod;
+  account: string;
+  status: WithdrawalStatus;
+  date: string;
 }
-
-const initial: Row[] = [
-  { id: 'w1', user: 'Ayesha Khan', points: 1200, pkr: 600, method: 'easypaisa', account: '0300-1234567', status: 'pending', date: '2026-08-11' },
-  { id: 'w2', user: 'Bilal Raza', points: 2000, pkr: 1000, method: 'jazzcash', account: '0301-7654321', status: 'pending', date: '2026-08-12' },
-  { id: 'w3', user: 'Sana Malik', points: 1500, pkr: 750, method: 'bank_transfer', account: 'HBL - 01234567890123', status: 'approved', date: '2026-08-08' },
-  { id: 'w4', user: 'Usman Tariq', points: 900, pkr: 450, method: 'easypaisa', account: '0333-1112223', status: 'paid', date: '2026-08-01' },
-];
 
 const statusStyle: Record<WithdrawalStatus, string> = {
   pending: 'bg-brand-amber/10 text-amber-700',
@@ -25,48 +24,68 @@ const statusStyle: Record<WithdrawalStatus, string> = {
 };
 
 export function AdminWithdrawals() {
-  const [rows, setRows] = useState(initial);
+  const [rows, setRows] = useState<Row[]>([]);
   const [filter, setFilter] = useState<WithdrawalStatus | 'all'>('pending');
   const { confirm, dialog } = useConfirmDialog();
 
-  useEffect(() => {
+  async function load() {
     if (!isSupabaseConfigured) return;
-    (async () => {
-      const { data } = await supabase
-        .from('withdrawals')
-        // withdrawals has two FKs into profiles (user_id, processed_by), so
-        // the embed must name the constraint explicitly.
-        .select('id, amount_points, amount_pkr, method, account_name, account_number, status, requested_at, profiles!withdrawals_user_id_fkey(full_name)')
-        .order('requested_at', { ascending: false });
-      if (data) {
-        setRows(data.map((r: any) => ({
-          id: r.id, user: r.profiles?.full_name ?? 'Unknown', points: r.amount_points,
-          pkr: r.amount_pkr, method: r.method, account: r.account_number,
-          status: r.status, date: new Date(r.requested_at).toLocaleDateString(),
-        })));
-      }
-    })();
-  }, []);
+    const { data, error } = await supabase
+      .from('withdrawals')
+      .select('id, amount, method, account_details, status, created_at, profiles!withdrawals_user_id_fkey(full_name)')
+      .order('created_at', { ascending: false });
+    if (error) { toast.error(error.message); return; }
+    setRows((data ?? []).map((r: any) => ({
+      id: r.id,
+      user: r.profiles?.full_name ?? 'Unknown user',
+      points: Number(r.amount),
+      pkr: Number(r.amount),
+      method: r.method,
+      account: r.account_details?.account_number ?? '—',
+      status: r.status,
+      date: new Date(r.created_at).toLocaleDateString('en-PK'),
+    })));
+  }
+
+  useEffect(() => { void load(); }, []);
 
   const filtered = filter === 'all' ? rows : rows.filter((r) => r.status === filter);
 
   async function setStatus(id: string, status: WithdrawalStatus) {
-    setRows((prev) => prev.map((r) => r.id === id ? { ...r, status } : r));
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('withdrawals').update({
-        status, processed_at: new Date().toISOString(),
-      }).eq('id', id);
-      if (error) { toast.error(error.message); return; }
-    }
-    toast.success(`Marked as ${status}`);
+    if (!isSupabaseConfigured) return;
+    const { error } = await supabase.rpc('admin_review_withdrawal', {
+      p_withdrawal_id: id,
+      p_status: status,
+      p_rejection_reason: status === 'rejected' ? 'Rejected by administrator' : null,
+    });
+    if (error) { toast.error(error.message); return; }
+    await load();
+    toast.success(`Withdrawal ${status}`);
   }
 
-  function markPaid(r: Row) {
-    confirm({
-      title: 'Mark as paid', description: `Confirm you have actually transferred PKR ${r.pkr.toLocaleString()} to ${r.user} via ${r.method.replace('_', ' ')} before marking this paid.`,
-      confirmLabel: 'Confirm paid',
-      onConfirm: () => setStatus(r.id, 'paid'),
-    });
+  function review(id: string, status: WithdrawalStatus) {
+    const r = rows.find((item) => item.id === id);
+    if (!r) return;
+    if (status === 'paid') {
+      confirm({
+        title: 'Mark as paid',
+        description: `Confirm you have actually transferred PKR ${r.pkr.toLocaleString()} to ${r.user} via ${r.method.replace('_', ' ')} before marking this paid.`,
+        confirmLabel: 'Confirm paid',
+        onConfirm: () => void setStatus(id, status),
+      });
+      return;
+    }
+    if (status === 'rejected') {
+      confirm({
+        title: 'Reject withdrawal',
+        description: `Reject this PKR ${r.pkr.toLocaleString()} withdrawal? The user's points will be returned automatically.`,
+        confirmLabel: 'Reject',
+        danger: true,
+        onConfirm: () => void setStatus(id, status),
+      });
+      return;
+    }
+    void setStatus(id, status);
   }
 
   return (
@@ -74,20 +93,13 @@ export function AdminWithdrawals() {
       {dialog}
       <div>
         <h1 className="font-display text-2xl font-extrabold text-navy-900">Withdrawals</h1>
-        <p className="text-sm text-navy-500">Every request must be manually reviewed. Never auto-mark as paid.</p>
+        <p className="text-sm text-navy-500">Review requests, approve or reject them, then mark approved payments as paid after the transfer is actually completed.</p>
       </div>
-
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {(['pending', 'approved', 'paid', 'rejected', 'all'] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
-              filter === f ? 'bg-navy-900 text-white' : 'bg-navy-100 text-navy-600 hover:bg-navy-200'
-            }`}>
-            {f}
-          </button>
+          <button key={f} onClick={() => setFilter(f)} className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize ${filter === f ? 'bg-navy-900 text-white' : 'bg-navy-100 text-navy-600'}`}>{f}</button>
         ))}
       </div>
-
       <div className="card overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-navy-50 text-left text-xs font-semibold uppercase text-navy-500">
@@ -98,21 +110,12 @@ export function AdminWithdrawals() {
               <tr key={r.id}>
                 <td className="px-5 py-3 font-medium text-navy-900">{r.user}<br /><span className="text-xs font-normal text-navy-400">{r.date}</span></td>
                 <td className="px-5 py-3 font-mono text-navy-700">{r.points.toLocaleString()} pts<br /><span className="text-xs text-brand-green-dark">PKR {r.pkr.toLocaleString()}</span></td>
-                <td className="px-5 py-3 text-navy-600 capitalize">{r.method.replace('_', ' ')}<br /><span className="font-mono text-xs">{r.account}</span></td>
+                <td className="px-5 py-3 capitalize text-navy-600">{r.method.replace('_', ' ')}<br /><span className="font-mono text-xs">{r.account}</span></td>
                 <td className="px-5 py-3"><span className={`badge capitalize ${statusStyle[r.status]}`}>{r.status}</span></td>
-                <td className="px-5 py-3">
-                  <div className="flex gap-2">
-                    {r.status === 'pending' && (
-                      <>
-                        <button onClick={() => setStatus(r.id, 'approved')} className="rounded-lg bg-brand-blue/10 p-1.5 text-brand-blue" title="Approve"><Check size={15} /></button>
-                        <button onClick={() => setStatus(r.id, 'rejected')} className="rounded-lg bg-red-50 p-1.5 text-red-600" title="Reject"><X size={15} /></button>
-                      </>
-                    )}
-                    {r.status === 'approved' && (
-                      <button onClick={() => markPaid(r)} className="btn-success !px-3 !py-1.5 text-xs"><BadgeCheck size={14} /> Mark paid</button>
-                    )}
-                  </div>
-                </td>
+                <td className="px-5 py-3"><div className="flex gap-2">
+                  {r.status === 'pending' && <><button onClick={() => review(r.id, 'approved')} className="rounded-lg bg-brand-blue/10 p-1.5 text-brand-blue" title="Approve"><Check size={15} /></button><button onClick={() => review(r.id, 'rejected')} className="rounded-lg bg-red-50 p-1.5 text-red-600" title="Reject"><X size={15} /></button></>}
+                  {r.status === 'approved' && <button onClick={() => review(r.id, 'paid')} className="btn-success !px-3 !py-1.5 text-xs"><BadgeCheck size={14} /> Mark paid</button>}
+                </div></td>
               </tr>
             ))}
           </tbody>
