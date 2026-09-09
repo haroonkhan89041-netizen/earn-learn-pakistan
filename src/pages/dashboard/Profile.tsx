@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useEffect, useState, FormEvent } from 'react';
 import toast from 'react-hot-toast';
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,17 +6,25 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export function Profile() {
   const { profile, user, signOut } = useAuth();
-  const [fullName, setFullName] = useState(profile?.full_name ?? '');
-  const [city, setCity] = useState(profile?.city ?? '');
-  const [skills, setSkills] = useState((profile?.skills ?? []).join(', '));
+  const [fullName, setFullName] = useState('');
+  const [city, setCity] = useState('');
+  const [skills, setSkills] = useState('');
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!profile) return;
+    setFullName(profile.full_name ?? '');
+    setCity(profile.city ?? '');
+    setSkills((profile.skills ?? []).join(', '));
+  }, [profile]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setSaving(true);
     if (isSupabaseConfigured && user) {
       const { error } = await supabase.from('profiles').update({
-        full_name: fullName, city,
+        full_name: fullName.trim(),
+        city: city.trim() || null,
         skills: skills.split(',').map((s) => s.trim()).filter(Boolean),
       }).eq('id', user.id);
       setSaving(false);
@@ -40,17 +48,17 @@ export function Profile() {
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-navy-100 text-navy-400">
             <User size={28} />
           </div>
-          <div>
-            <p className="font-display text-base font-bold text-navy-900">{profile?.full_name}</p>
-            <p className="text-sm text-navy-500">{profile?.email}</p>
-            <span className="badge-verified mt-1">{profile?.account_status}</span>
+          <div className="min-w-0">
+            <p className="font-display text-base font-bold text-navy-900 truncate">{profile?.full_name || 'Your profile'}</p>
+            <p className="text-sm text-navy-500 truncate">{profile?.email}</p>
+            <span className="badge-verified mt-1">{profile?.account_status ?? 'active'}</span>
           </div>
         </div>
 
         <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label">Full name</label>
-            <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+            <input className="input" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
           </div>
           <div>
             <label className="label">Email</label>
