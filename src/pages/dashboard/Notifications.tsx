@@ -14,20 +14,34 @@ const icons: Record<NotificationType, any> = {
 
 export function Notifications() {
   const { user } = useAuth();
-  const [items, setItems] = useState<AppNotification[]>(DEMO_NOTIFICATIONS);
+  const [items, setItems] = useState<AppNotification[]>(isSupabaseConfigured ? [] : DEMO_NOTIFICATIONS);
+  const [loading, setLoading] = useState(isSupabaseConfigured);
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !user) return;
+    if (!isSupabaseConfigured || !user) {
+      setLoading(false);
+      return;
+    }
     (async () => {
-      const { data } = await supabase
+      setLoading(true);
+      const { data, error } = await supabase
         .from('notifications').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-      if (data) setItems(data as AppNotification[]);
+      if (error) {
+        console.error('[Notifications] load failed:', error.message);
+        setItems([]);
+      } else {
+        setItems((data ?? []) as AppNotification[]);
+      }
+      setLoading(false);
     })();
   }, [user]);
 
   async function markRead(id: string) {
     setItems((prev) => prev.map((n) => n.id === id ? { ...n, is_read: true } : n));
-    if (isSupabaseConfigured) await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    if (isSupabaseConfigured && user) {
+      const { error } = await supabase.from('notifications').update({ is_read: true }).eq('id', id).eq('user_id', user.id);
+      if (error) console.error('[Notifications] mark read failed:', error.message);
+    }
   }
 
   return (
@@ -37,12 +51,14 @@ export function Notifications() {
         <p className="text-sm text-navy-500">Stay up to date with tasks, rewards, and referrals.</p>
       </div>
 
-      {items.length === 0 ? (
+      {loading ? (
+        <div className="card p-6 text-sm text-navy-500">Loading notifications…</div>
+      ) : items.length === 0 ? (
         <EmptyState icon={<Bell size={22} />} title="No notifications yet" description="You'll see updates about tasks, rewards, and more here." />
       ) : (
         <div className="card divide-y divide-navy-100">
           {items.map((n) => {
-            const Icon = icons[n.type];
+            const Icon = icons[n.type] ?? Bell;
             return (
               <button
                 key={n.id} onClick={() => markRead(n.id)}
@@ -51,7 +67,7 @@ export function Notifications() {
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-navy-100 text-navy-500">
                   <Icon size={16} />
                 </div>
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-navy-900">{n.title}</p>
                   <p className="text-sm text-navy-500">{n.message}</p>
                   <p className="mt-1 text-xs text-navy-400">{new Date(n.created_at).toLocaleDateString()}</p>
