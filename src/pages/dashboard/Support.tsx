@@ -46,8 +46,8 @@ export function Support() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const trimmed = message.trim();
-    if (!user || !trimmed || submitting) return;
-    const userId = user.id;
+    const userId = user?.id;
+    if (!userId || !trimmed || submitting) return;
     setSubmitting(true);
     const { data, error } = await supabase
       .from('support_tickets')
