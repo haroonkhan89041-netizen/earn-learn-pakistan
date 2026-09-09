@@ -4,22 +4,12 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 interface Stat { label: string; value: string; icon: any; }
 
-const DEMO_STATS: Stat[] = [
-  { label: 'Total users', value: '0', icon: Users },
-  { label: 'Active users (30d)', value: '0', icon: TrendingUp },
-  { label: 'New users (7d)', value: '0', icon: Users },
-  { label: 'Verified task submissions', value: '0', icon: ListChecks },
-  { label: 'Points issued', value: '0', icon: TrendingUp },
-  { label: 'Pending withdrawals', value: '0', icon: Wallet },
-  { label: 'Paid withdrawals (30d)', value: 'PKR 0', icon: Wallet },
-];
-
 export function AdminOverview() {
-  const [stats, setStats] = useState<Stat[]>(DEMO_STATS);
-  const [loading, setLoading] = useState(isSupabaseConfigured);
+  const [stats, setStats] = useState<Stat[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured) { setLoading(false); return; }
     (async () => {
       const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -30,9 +20,8 @@ export function AdminOverview() {
         supabase.from('task_submissions').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
         supabase.from('reward_transactions').select('points').gt('points', 0),
         supabase.from('withdrawals').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('withdrawals').select('amount').eq('status', 'approved').gte('created_at', since30d),
+        supabase.from('withdrawals').select('amount').eq('status', 'paid').gte('created_at', since30d),
       ]);
-
       const activeUserCount = new Set((activeSubmissions.data ?? []).map((r) => r.user_id)).size;
       const pointsIssued = (positivePoints.data ?? []).reduce((sum, r) => sum + Number(r.points), 0);
       const paidPkr = (paidWithdrawals30d.data ?? []).reduce((sum, r) => sum + Number(r.amount), 0);
@@ -53,7 +42,7 @@ export function AdminOverview() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-extrabold text-navy-900">Overview</h1>
-        <p className="text-sm text-navy-500">{isSupabaseConfigured ? 'Live platform-wide analytics.' : 'Demo snapshot — connect Supabase for live data.'}</p>
+        <p className="text-sm text-navy-500">{isSupabaseConfigured ? 'Live platform-wide analytics.' : 'Supabase is not configured for this environment.'}</p>
       </div>
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {stats.map((s) => (
