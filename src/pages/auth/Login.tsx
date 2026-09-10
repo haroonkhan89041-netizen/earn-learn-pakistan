@@ -32,8 +32,7 @@ export function Login() {
     >
       {!isSupabaseConfigured && (
         <div className="mb-4 rounded-xl bg-brand-amber/10 px-3 py-2 text-xs text-amber-700">
-          Demo mode: Supabase isn't connected yet, so you can preview the dashboard without logging in.{' '}
-          <Link to="/dashboard" className="font-semibold underline">Preview dashboard →</Link>
+          Account login is temporarily unavailable because the authentication service is not configured.
         </div>
       )}
       <form onSubmit={onSubmit} className="space-y-4">
@@ -49,7 +48,7 @@ export function Login() {
           <input className="input" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button className="btn-primary w-full" disabled={loading}>{loading ? 'Logging in…' : 'Log in'}</button>
+        <button className="btn-primary w-full" disabled={loading || !isSupabaseConfigured}>{loading ? 'Logging in…' : 'Log in'}</button>
       </form>
     </AuthLayout>
   );
