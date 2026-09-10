@@ -1,7 +1,7 @@
 import { NavLink, Outlet, Link, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Briefcase, ListChecks, GraduationCap, Wallet,
-  Settings, BarChart3, Megaphone, ArrowLeft, MessageSquare,
+  Settings, BarChart3, Megaphone, ArrowLeft, MessageSquare, BookOpen,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -11,6 +11,7 @@ const items = [
   { to: '/admin/opportunities', label: 'Opportunities', icon: Briefcase },
   { to: '/admin/tasks', label: 'Tasks', icon: ListChecks },
   { to: '/admin/courses', label: 'Courses', icon: GraduationCap },
+  { to: '/admin/courses/lessons', label: 'Lessons', icon: BookOpen },
   { to: '/admin/withdrawals', label: 'Withdrawals', icon: Wallet },
   { to: '/admin/support', label: 'Support', icon: MessageSquare },
   { to: '/admin/ads', label: 'Advertising', icon: Megaphone },
