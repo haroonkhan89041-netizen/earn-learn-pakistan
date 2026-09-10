@@ -1,68 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Trophy, EyeOff } from 'lucide-react';
+import { Trophy, EyeOff, Sparkles, Medal } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
-
-type Period = 'weekly' | 'monthly' | 'alltime';
-type Row = { id: string; name: string; points: number; tasks: number };
-
-function startOfPeriod(period: Period) {
-  const now = new Date();
-  if (period === 'alltime') return null;
-  const d = new Date(now);
-  if (period === 'weekly') {
-    const day = d.getDay();
-    d.setDate(d.getDate() - day);
-  } else {
-    d.setDate(1);
-  }
-  d.setHours(0, 0, 0, 0);
-  return d.toISOString();
-}
-
-export function Leaderboard() {
-  const { user } = useAuth();
-  const [period, setPeriod] = useState<Period>('weekly');
-  const [hideMe, setHideMe] = useState(false);
-  const [rows, setRows] = useState<Row[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured) { setRows([]); setLoading(false); return; }
-    (async () => {
-      setLoading(true);
-      const since = startOfPeriod(period);
-      let query = supabase.from('profiles').select('id, full_name, username, points').order('points', { ascending: false }).limit(100);
-      if (since) {
-        const { data: transactions } = await supabase.from('reward_transactions').select('user_id, points').gte('created_at', since);
-        const earned = new Map<string, number>();
-        (transactions ?? []).forEach((t) => earned.set(t.user_id, (earned.get(t.user_id) ?? 0) + Math.max(0, t.points)));
-        const { data: profiles } = await query;
-        const ids = (profiles ?? []).map((p) => p.id);
-        const { data: submissions } = ids.length ? await supabase.from('task_submissions').select('user_id, reviewed_at').eq('status', 'approved').in('user_id', ids).gte('reviewed_at', since) : { data: [] };
-        const taskCounts = new Map<string, number>();
-        (submissions ?? []).forEach((s) => taskCounts.set(s.user_id, (taskCounts.get(s.user_id) ?? 0) + 1));
-        setRows((profiles ?? []).map((p) => ({ id: p.id, name: p.id === user?.id && hideMe ? 'You' : (p.full_name || p.username || 'Learner'), points: earned.get(p.id) ?? 0, tasks: taskCounts.get(p.id) ?? 0 })).filter((r) => r.points > 0).sort((a, b) => b.points - a.points));
-      } else {
-        const { data: profiles } = await query;
-        const ids = (profiles ?? []).map((p) => p.id);
-        const { data: submissions } = ids.length ? await supabase.from('task_submissions').select('user_id').eq('status', 'approved').in('user_id', ids) : { data: [] };
-        const taskCounts = new Map<string, number>();
-        (submissions ?? []).forEach((s) => taskCounts.set(s.user_id, (taskCounts.get(s.user_id) ?? 0) + 1));
-        setRows((profiles ?? []).map((p) => ({ id: p.id, name: p.id === user?.id && hideMe ? 'You' : (p.full_name || p.username || 'Learner'), points: p.points ?? 0, tasks: taskCounts.get(p.id) ?? 0 })).sort((a, b) => b.points - a.points));
-      }
-      setLoading(false);
-    })();
-  }, [period, user, hideMe]);
-
-  return (
-    <div className="space-y-6">
-      <div><h1 className="font-display text-2xl font-extrabold text-navy-900">Leaderboard</h1><p className="text-sm text-navy-500">See how you rank against other learners.</p></div>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex gap-2">{(['weekly', 'monthly', 'alltime'] as const).map((p) => <button key={p} onClick={() => setPeriod(p)} className={`rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors ${period === p ? 'bg-navy-900 text-white' : 'bg-navy-100 text-navy-600 hover:bg-navy-200'}`}>{p === 'alltime' ? 'All-time' : p}</button>)}</div>
-        <label className="flex items-center gap-2 text-xs text-navy-500"><input type="checkbox" checked={hideMe} onChange={(e) => setHideMe(e.target.checked)} /><EyeOff size={13} /> Hide my name from public leaderboard</label>
-      </div>
-      <div className="card overflow-hidden">{loading ? <p className="p-8 text-center text-sm text-navy-500">Loading leaderboard…</p> : rows.length === 0 ? <p className="p-8 text-center text-sm text-navy-500">No leaderboard activity yet.</p> : <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-navy-50 text-left text-xs font-semibold uppercase text-navy-500"><tr><th className="px-5 py-3">Rank</th><th className="px-5 py-3">User</th><th className="px-5 py-3">Points</th><th className="px-5 py-3">Tasks completed</th></tr></thead><tbody className="divide-y divide-navy-100">{rows.map((row, i) => <tr key={row.id}><td className="px-5 py-3 font-mono font-semibold text-navy-700">{i < 3 ? <Trophy size={15} className="inline text-brand-amber" /> : `#${i + 1}`}</td><td className="px-5 py-3 font-medium text-navy-900">{row.id === user?.id && hideMe ? 'You' : row.name}</td><td className="px-5 py-3 font-mono text-brand-green-dark">{row.points.toLocaleString()}</td><td className="px-5 py-3 text-navy-600">{row.tasks}</td></tr>)}</tbody></table></div>}</div>
-    </div>
-  );
-}
+type Period='weekly'|'monthly'|'alltime';type Row={id:string;name:string;points:number;tasks:number};
+function startOfPeriod(period:Period){const now=new Date();if(period==='alltime')return null;const d=new Date(now);if(period==='weekly'){const day=d.getDay();d.setDate(d.getDate()-day);}else d.setDate(1);d.setHours(0,0,0,0);return d.toISOString();}
+export function Leaderboard(){const{user}=useAuth();const[period,setPeriod]=useState<Period>('weekly');const[hideMe,setHideMe]=useState(false);const[rows,setRows]=useState<Row[]>([]);const[loading,setLoading]=useState(true);useEffect(()=>{if(!isSupabaseConfigured){setRows([]);setLoading(false);return;}(async()=>{setLoading(true);const since=startOfPeriod(period);let query=supabase.from('profiles').select('id,full_name,username,points').order('points',{ascending:false}).limit(100);if(since){const{data:transactions}=await supabase.from('reward_transactions').select('user_id,points').gte('created_at',since);const earned=new Map<string,number>();(transactions??[]).forEach(t=>earned.set(t.user_id,(earned.get(t.user_id)??0)+Math.max(0,t.points)));const{data:profiles}=await query;const ids=(profiles??[]).map(p=>p.id);const{data:submissions}=ids.length?await supabase.from('task_submissions').select('user_id,reviewed_at').eq('status','approved').in('user_id',ids).gte('reviewed_at',since):{data:[]};const taskCounts=new Map<string,number>();(submissions??[]).forEach(s=>taskCounts.set(s.user_id,(taskCounts.get(s.user_id)??0)+1));setRows((profiles??[]).map(p=>({id:p.id,name:p.id===user?.id&&hideMe?'You':(p.full_name||p.username||'Learner'),points:earned.get(p.id)??0,tasks:taskCounts.get(p.id)??0})).filter(r=>r.points>0).sort((a,b)=>b.points-a.points));}else{const{data:profiles}=await query;const ids=(profiles??[]).map(p=>p.id);const{data:submissions}=ids.length?await supabase.from('task_submissions').select('user_id').eq('status','approved').in('user_id',ids):{data:[]};const taskCounts=new Map<string,number>();(submissions??[]).forEach(s=>taskCounts.set(s.user_id,(taskCounts.get(s.user_id)??0)+1));setRows((profiles??[]).map(p=>({id:p.id,name:p.id===user?.id&&hideMe?'You':(p.full_name||p.username||'Learner'),points:p.points??0,tasks:taskCounts.get(p.id)??0})).sort((a,b)=>b.points-a.points));}setLoading(false);})();},[period,user,hideMe]);return <div className="space-y-6"><div><div className="mb-2 inline-flex items-center gap-2 rounded-full border border-brand-blue/20 bg-brand-blue/5 px-3 py-1 text-xs font-semibold text-brand-blue"><Sparkles size={13}/>Community ranking</div><h1 className="font-display text-3xl font-extrabold tracking-tight text-navy-900">Leaderboard</h1><p className="mt-1 text-sm text-navy-500">See how you rank against other learners and celebrate the top performers.</p></div><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex flex-wrap gap-2">{(['weekly','monthly','alltime'] as const).map(p=><button key={p} onClick={()=>setPeriod(p)} className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${period===p?'border-brand-blue bg-brand-blue text-white shadow-lg shadow-brand-blue/20':'border-navy-100 bg-white text-navy-600 hover:border-brand-blue/30 hover:text-brand-blue'}`}>{p==='alltime'?'All-time':p.charAt(0).toUpperCase()+p.slice(1)}</button>)}</div><label className="flex items-center gap-2 text-xs text-navy-500"><input type="checkbox" checked={hideMe} onChange={e=>setHideMe(e.target.checked)}/><EyeOff size={13}/> Hide my name</label></div><div className="card overflow-hidden">{loading?<p className="p-10 text-center text-sm text-navy-500">Loading leaderboard…</p>:rows.length===0?<div className="p-10 text-center"><Medal className="mx-auto mb-3 text-brand-blue" size={30}/><p className="text-sm font-semibold text-navy-800">No leaderboard activity yet</p><p className="mt-1 text-xs text-navy-400">Complete tasks and earn points to appear here.</p></div>:<div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-navy-50/80 text-left text-xs font-semibold uppercase tracking-wider text-navy-500"><tr><th className="px-5 py-3">Rank</th><th className="px-5 py-3">User</th><th className="px-5 py-3">Points</th><th className="px-5 py-3">Tasks completed</th></tr></thead><tbody className="divide-y divide-navy-100">{rows.map((row,i)=><tr key={row.id} className={row.id===user?.id?'bg-brand-blue/5':''}><td className="px-5 py-4 font-mono font-semibold text-navy-700">{i<3?<Trophy size={16} className="inline text-brand-amber"/>:`#${i+1}`}</td><td className="px-5 py-4 font-semibold text-navy-900">{row.id===user?.id&&hideMe?'You':row.name}</td><td className="px-5 py-4 font-mono font-semibold text-brand-green-dark">{row.points.toLocaleString()}</td><td className="px-5 py-4 text-navy-600">{row.tasks}</td></tr>)}</tbody></table></div>}</div></div>}
