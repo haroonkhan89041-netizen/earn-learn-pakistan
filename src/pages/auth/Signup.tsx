@@ -39,7 +39,7 @@ export function Signup() {
     >
       {!isSupabaseConfigured && (
         <div className="mb-4 rounded-xl bg-brand-amber/10 px-3 py-2 text-xs text-amber-700">
-          Demo mode: connect Supabase (see README) to enable real sign-up.
+          Account creation is temporarily unavailable because the authentication service is not configured.
         </div>
       )}
       <form onSubmit={onSubmit} className="space-y-4">
@@ -67,7 +67,7 @@ export function Signup() {
           <Link to="/legal/earnings-disclaimer" className="text-brand-blue">Earnings Disclaimer</Link> — no income is guaranteed.
         </label>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button className="btn-primary w-full" disabled={loading}>{loading ? 'Creating account…' : 'Create Free Account'}</button>
+        <button className="btn-primary w-full" disabled={loading || !isSupabaseConfigured}>{loading ? 'Creating account…' : 'Create Free Account'}</button>
       </form>
     </AuthLayout>
   );
