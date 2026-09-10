@@ -1,25 +1,25 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, BookOpen, ListChecks, TrendingUp, Users, Wallet, ChevronDown } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ShieldCheck, BookOpen, ListChecks, TrendingUp, Users, Wallet, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DEMO_OPPORTUNITIES, DEMO_COURSES } from '@/data/demoData';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { VerifiedBadge } from '@/components/ui/Badge';
 
 const steps = [
-  { icon: Users, title: 'Create a free account', text: 'Sign up in under a minute — no fees, ever.' },
-  { icon: BookOpen, title: 'Learn a skill', text: 'Work through beginner-friendly courses at your own pace.' },
-  { icon: ListChecks, title: 'Complete verified tasks', text: 'Earn points for tasks that are reviewed before rewards are paid.' },
-  { icon: Wallet, title: 'Request a reward', text: 'Cash out via Easypaisa, JazzCash, or bank transfer once you hit the threshold.' },
+  { icon: Users, no: '01', title: 'Create your account', text: 'Join free and build your profile in less than a minute.' },
+  { icon: BookOpen, no: '02', title: 'Learn useful skills', text: 'Follow practical lessons designed for beginners.' },
+  { icon: ListChecks, no: '03', title: 'Complete tasks', text: 'Put your skills to work with verified activities.' },
+  { icon: Wallet, no: '04', title: 'Request rewards', text: 'Turn eligible points into a reviewed withdrawal.' },
 ];
 
 const faqs = [
-  { q: 'Is Earn & Learn Pakistan free to join?', a: 'Yes. Creating an account and browsing opportunities, tasks, and courses is completely free.' },
-  { q: 'Do you guarantee income?', a: 'No. Earnings depend entirely on available opportunities, task completion, and your own effort. We never promise a fixed income — see our Earnings Disclaimer.' },
-  { q: 'How do withdrawals work?', a: 'Once your points balance reaches the configured minimum, you can request a withdrawal via Easypaisa, JazzCash, or bank transfer. Every request is manually reviewed by our team before being marked paid.' },
-  { q: 'Are the opportunities verified?', a: 'Every opportunity shown publicly has been reviewed and approved by our admin team before it appears on the platform.' },
+  { q: 'Is Earn & Learn Pakistan free?', a: 'Yes. Creating an account, browsing opportunities and accessing our core learning resources is free.' },
+  { q: 'Do you guarantee income?', a: 'No. Earnings depend on available opportunities, task completion and your own activity. We never promise a fixed income.' },
+  { q: 'How do withdrawals work?', a: 'When your eligible balance reaches the configured threshold, you can request a withdrawal through the available payment methods.' },
+  { q: 'Are opportunities verified?', a: 'Public opportunities are reviewed and approved by the admin team before appearing on the platform.' },
 ];
 
-const heroImage = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=85';
+const heroImage = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=85';
 const learningImage = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=85';
 const workImage = 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1000&q=85';
 
@@ -36,7 +36,6 @@ export function Home() {
       setCourses(DEMO_COURSES.slice(0, 6).map((c) => ({ id: c.id, title: c.title, description: null, level: c.difficulty })));
       return;
     }
-
     const loadContent = async () => {
       const [opportunitiesResult, coursesResult] = await Promise.all([
         supabase.from('opportunities').select('id,title,description,earning_estimate').eq('status', 'published').eq('verification_status', 'verified').eq('featured', true).order('created_at', { ascending: false }).limit(3),
@@ -49,41 +48,111 @@ export function Home() {
   }, []);
 
   return (
-    <div>
-      <section className="relative overflow-hidden bg-navy-900">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-blue/20 blur-3xl" />
-        <div className="pointer-events-none absolute -left-24 bottom-0 h-80 w-80 rounded-full bg-brand-green/20 blur-3xl" />
-        <div className="container-app relative grid items-center gap-10 py-16 md:grid-cols-[1.05fr_.95fr] md:py-24">
-          <div>
-            <span className="badge bg-white/10 text-white">🇵🇰 Built for Pakistan</span>
-            <h1 className="mt-5 max-w-3xl font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">Learn Skills. Complete Tasks.<br /><span className="text-brand-green">Discover</span> Earning Opportunities.</h1>
-            <p className="mt-5 max-w-xl text-base text-navy-200 md:text-lg">A free platform to build digital skills, complete verified tasks, and browse admin-approved online earning opportunities — with no guarantees, no gimmicks, just real resources.</p>
-            <div className="mt-8 flex flex-wrap gap-3"><Link to="/signup" className="btn-success text-base">Create Free Account <ArrowRight size={18} /></Link><Link to="/opportunities" className="btn bg-white/10 text-white hover:bg-white/20 text-base">Explore Opportunities</Link></div>
-            <p className="mt-6 flex items-center gap-2 text-xs text-navy-300"><ShieldCheck size={14} className="text-brand-green" />We never guarantee income — earnings depend on your activity and available opportunities.</p>
+    <div className="bg-[#f7f7f2] text-[#10110f]">
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-[#10110f] text-white">
+        <div className="absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[#718d5d]/20 blur-3xl" />
+        <div className="absolute -bottom-48 left-1/3 h-[420px] w-[420px] rounded-full bg-white/[0.05] blur-3xl" />
+        <div className="container-app relative py-14 sm:py-20 lg:py-24">
+          <div className="grid items-end gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
+            <div className="max-w-3xl">
+              <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white/70">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#91b477]" /> Built for Pakistan
+              </div>
+              <h1 className="font-display text-[clamp(3.2rem,8vw,7.4rem)] font-black leading-[.87] tracking-[-0.065em]">
+                Learn.<br /><span className="text-[#91b477]">Work.</span><br />Grow.
+              </h1>
+              <p className="mt-8 max-w-xl text-base leading-7 text-white/60 sm:text-lg">
+                Build practical digital skills, discover verified opportunities and complete useful tasks — all in one simple platform.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link to="/signup" className="group inline-flex items-center gap-3 rounded-full bg-[#91b477] px-6 py-3.5 text-sm font-black text-[#10110f] transition-all hover:-translate-y-0.5 hover:bg-[#a5c38b]">
+                  Create free account <ArrowUpRight size={17} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </Link>
+                <Link to="/opportunities" className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-white/10">
+                  Explore opportunities <ArrowRight size={16} />
+                </Link>
+              </div>
+              <div className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-semibold text-white/40">
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-[#91b477]" /> Free to join</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-[#91b477]" /> Verified listings</span>
+                <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-[#91b477]" /> No income guarantees</span>
+              </div>
+            </div>
+
+            <div className="relative lg:mb-2">
+              <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-2xl">
+                <img src={heroImage} alt="Professionals learning and working online" className="h-[360px] w-full object-cover grayscale-[15%] sm:h-[440px]" loading="eager" />
+              </div>
+              <div className="absolute -bottom-5 -left-3 rounded-2xl border border-black/10 bg-[#f7f7f2] p-4 text-[#10110f] shadow-2xl sm:-left-8">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#10110f] text-[#91b477]"><TrendingUp size={20} /></div>
+                  <div><p className="text-sm font-black">Progress, not promises.</p><p className="mt-0.5 text-[10px] font-semibold text-black/45">Skills first. Opportunities next.</p></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl">
-            <img src={heroImage} alt="Pakistani professionals learning and working online" className="h-[320px] w-full object-cover opacity-90 md:h-[390px]" loading="eager" />
-            <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/15 bg-navy-900/80 p-4 backdrop-blur-md"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green text-navy-900"><TrendingUp size={20} /></div><div><p className="text-sm font-bold text-white">Build skills. Find opportunities.</p><p className="text-xs text-navy-200">A professional starting point for your online journey.</p></div></div></div>
+        </div>
+        <div className="container-app flex items-center justify-between border-t border-white/10 py-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+          <span>Earn &amp; Learn Pakistan</span><span>Skills / Tasks / Opportunities</span>
+        </div>
+      </section>
+
+      {/* INTRO */}
+      <section className="container-app py-20 sm:py-28">
+        <div className="grid gap-10 lg:grid-cols-[.65fr_1.35fr] lg:gap-20">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#718d5d]">A better starting point</p>
+          <div>
+            <h2 className="font-display text-4xl font-black leading-[.98] tracking-[-0.05em] sm:text-6xl">Everything you need to make your next step <span className="text-black/25">more practical.</span></h2>
+            <p className="mt-7 max-w-2xl text-base leading-7 text-black/50">Instead of chasing unrealistic promises, use one place to learn, practice and discover legitimate opportunities that fit your skills.</p>
           </div>
         </div>
       </section>
 
-      <section className="container-app py-16 md:py-20"><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">How it works</h2><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{steps.map((s, i) => <div key={s.title} className="card p-5"><div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue"><s.icon size={19} /></div><p className="mb-1 text-xs font-semibold text-navy-400">Step {i + 1}</p><p className="font-display text-base font-bold text-navy-900">{s.title}</p><p className="mt-1 text-sm text-navy-500">{s.text}</p></div>)}</div></section>
+      {/* PROCESS */}
+      <section className="border-y border-black/[0.07] bg-white">
+        <div className="container-app py-20 sm:py-24">
+          <div className="mb-12 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-black/35">The process</p><h2 className="mt-2 font-display text-4xl font-black tracking-[-0.05em] sm:text-5xl">Four simple moves.</h2></div><span className="text-sm font-semibold text-black/40">Start at zero. Build from there.</span></div>
+          <div className="grid border-l border-t border-black/[0.08] sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map((s) => <div key={s.no} className="group border-b border-r border-black/[0.08] p-6 sm:p-7"><div className="flex items-start justify-between"><span className="font-mono text-xs text-black/30">{s.no}</span><s.icon size={21} strokeWidth={1.7} className="text-black/35 transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-6" /></div><h3 className="mt-16 font-display text-xl font-black tracking-[-0.03em]">{s.title}</h3><p className="mt-2 text-sm leading-6 text-black/45">{s.text}</p></div>)}
+          </div>
+        </div>
+      </section>
 
-      <section className="bg-navy-50/60 py-16 md:py-20"><div className="container-app"><div className="grid items-center gap-8 md:grid-cols-2"><div className="overflow-hidden rounded-3xl shadow-lg"><img src={learningImage} alt="People learning digital skills together" className="h-72 w-full object-cover md:h-80" loading="lazy" /></div><div><span className="badge bg-brand-green/10 text-brand-green-dark">Learn first</span><h2 className="mt-3 font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Turn learning into practical progress</h2><p className="mt-3 text-navy-500">Start with beginner-friendly lessons, build useful digital skills, then use verified tasks and opportunities to put those skills into practice.</p><Link to="/learn" className="btn-outline mt-5 inline-flex">Explore free courses <ArrowRight size={16} /></Link></div></div></div></section>
+      {/* LEARNING */}
+      <section className="container-app py-20 sm:py-28">
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1fr] lg:gap-20">
+          <div className="overflow-hidden rounded-[2rem] bg-black"><img src={learningImage} alt="People learning digital skills" className="h-[380px] w-full object-cover grayscale-[20%] sm:h-[480px]" loading="lazy" /></div>
+          <div><p className="text-xs font-black uppercase tracking-[0.2em] text-[#718d5d]">Learn first</p><h2 className="mt-4 font-display text-4xl font-black leading-[.98] tracking-[-0.05em] sm:text-6xl">Skills that move with you.</h2><p className="mt-6 max-w-lg text-base leading-7 text-black/50">From beginner-friendly digital lessons to practical tasks, build a foundation you can actually use.</p><div className="mt-8 space-y-3 text-sm font-bold"><div className="flex items-center gap-3"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#10110f] text-white"><CheckCircle2 size={14} /></span> Beginner-friendly courses</div><div className="flex items-center gap-3"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#10110f] text-white"><CheckCircle2 size={14} /></span> Learn at your own pace</div><div className="flex items-center gap-3"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#10110f] text-white"><CheckCircle2 size={14} /></span> Put skills into practice</div></div><Link to="/learn" className="group mt-9 inline-flex items-center gap-2 border-b border-black pb-2 text-sm font-black">Explore free courses <ArrowUpRight size={16} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" /></Link></div>
+        </div>
+      </section>
 
-      <section className="container-app py-16 md:py-20"><div className="mb-8 flex items-end justify-between"><div><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Featured opportunities</h2><p className="mt-1 text-sm text-navy-500">Admin-verified. Pay and availability vary.</p></div><Link to="/opportunities" className="hidden text-sm font-semibold text-brand-blue sm:block">View all →</Link></div><div className="grid gap-4 md:grid-cols-3">{opportunities.map((op, i) => <div key={op.id} className="card flex flex-col overflow-hidden"><img src={[workImage, heroImage, learningImage][i % 3]} alt="Professional online work" className="h-40 w-full object-cover" loading="lazy" /><div className="flex flex-1 flex-col p-5"><div className="mb-2 flex items-center gap-2"><VerifiedBadge /></div><p className="font-display text-base font-bold text-navy-900">{op.title}</p><p className="mt-1 flex-1 text-sm text-navy-500">{op.description}</p><div className="mt-4 flex items-center justify-between text-xs text-navy-400"><span>Verified opportunity</span><span className="font-mono font-semibold text-brand-green-dark">{op.earning_estimate || 'Varies'}</span></div></div></div>)}</div></section>
+      {/* OPPORTUNITIES */}
+      <section className="bg-[#10110f] py-20 text-white sm:py-24">
+        <div className="container-app">
+          <div className="mb-10 flex items-end justify-between gap-6"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[#91b477]">Live opportunities</p><h2 className="mt-3 font-display text-4xl font-black tracking-[-0.05em] sm:text-5xl">Find your next move.</h2></div><Link to="/opportunities" className="hidden items-center gap-2 text-sm font-bold text-white/55 hover:text-white sm:flex">View all <ArrowUpRight size={15} /></Link></div>
+          <div className="grid gap-px overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/10 md:grid-cols-3">
+            {opportunities.map((op, i) => <div key={op.id} className="group bg-[#161814] p-5 transition-colors hover:bg-[#1d201b]"><div className="mb-5 h-40 overflow-hidden rounded-xl"><img src={[workImage, heroImage, learningImage][i % 3]} alt="Professional online work" className="h-full w-full object-cover grayscale-[15%] transition duration-500 group-hover:scale-105" loading="lazy" /></div><div className="flex items-center gap-2"><VerifiedBadge /><span className="text-[10px] font-bold text-white/35">Verified</span></div><h3 className="mt-3 font-display text-lg font-black">{op.title}</h3><p className="mt-1 line-clamp-2 text-sm leading-6 text-white/45">{op.description}</p><div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4"><span className="text-[10px] uppercase tracking-wider text-white/30">Estimated</span><span className="font-mono text-sm font-bold text-[#91b477]">{op.earning_estimate || 'Varies'}</span></div></div>)}
+          </div>
+        </div>
+      </section>
 
-      <section className="bg-navy-50/60 py-16 md:py-20"><div className="container-app"><div className="mb-8 flex items-end justify-between"><div><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Popular skills to learn</h2><p className="mt-1 text-sm text-navy-500">Practical skills you can build at your own pace.</p></div><Link to="/learn" className="hidden text-sm font-semibold text-brand-blue sm:block">View courses →</Link></div><div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">{courses.map((c) => <div key={c.id} className="card flex items-center gap-4 p-4"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-green/10 text-brand-green-dark"><BookOpen size={20} /></div><div><p className="font-display text-sm font-bold text-navy-900">{c.title}</p><p className="text-xs capitalize text-navy-500">{c.level} level</p></div></div>)}</div></div></section>
+      {/* SKILLS */}
+      <section className="border-b border-black/[0.07] bg-white py-20 sm:py-24"><div className="container-app"><div className="mb-10 flex items-end justify-between"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-black/35">Popular skills</p><h2 className="mt-2 font-display text-4xl font-black tracking-[-0.05em] sm:text-5xl">Keep learning.</h2></div><Link to="/learn" className="hidden text-sm font-bold text-black/50 hover:text-black sm:block">All courses →</Link></div><div className="grid gap-px overflow-hidden rounded-2xl border border-black/[0.08] bg-black/[0.08] sm:grid-cols-2 lg:grid-cols-3">{courses.map((c, i) => <Link to={`/learn/${c.id}`} key={c.id} className="group bg-white p-5 transition hover:bg-[#f7f7f2]"><div className="flex items-center justify-between"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#10110f] text-[#91b477]"><BookOpen size={19} /></div><span className="font-mono text-[10px] text-black/30">0{i + 1}</span></div><p className="mt-8 font-display text-lg font-black tracking-[-0.025em]">{c.title}</p><p className="mt-1 text-xs font-semibold capitalize text-black/40">{c.level} level</p><ArrowUpRight size={16} className="mt-5 text-black/25 transition group-hover:-translate-y-1 group-hover:translate-x-1" /></Link>)}</div></div></section>
 
-      <section className="bg-navy-900 py-16 text-white md:py-20"><div className="container-app grid items-center gap-10 md:grid-cols-2"><div><span className="badge bg-white/10 text-white">Verified task system</span><h2 className="mt-3 font-display text-2xl font-extrabold md:text-3xl">Daily tasks, real points</h2><p className="mt-3 max-w-md text-navy-300">Short articles, videos, quizzes, and skill lessons — each one rewards points only after your completion is verified.</p><Link to="/signup" className="btn-success mt-6 inline-flex">Start earning points <ArrowRight size={16} /></Link></div><div className="overflow-hidden rounded-3xl border border-white/10 shadow-2xl"><img src={workImage} alt="Professional working on digital tasks" className="h-64 w-full object-cover md:h-80" loading="lazy" /></div></div></section>
+      {/* TRUST */}
+      <section className="container-app py-20 sm:py-28"><div className="grid gap-12 lg:grid-cols-[.7fr_1.3fr]"><div><p className="text-xs font-black uppercase tracking-[0.2em] text-[#718d5d]">Built on clarity</p><h2 className="mt-4 font-display text-4xl font-black leading-[.98] tracking-[-0.05em] sm:text-6xl">No gimmicks.<br />Just a clear system.</h2></div><div className="grid gap-px overflow-hidden rounded-2xl border border-black/[0.08] bg-black/[0.08] sm:grid-cols-2">{[{ icon: ShieldCheck, t: 'Admin-verified listings', d: 'Opportunities are reviewed before publication.' }, { icon: TrendingUp, t: 'Transparent points', d: 'Transactions are recorded in your points ledger.' }, { icon: Wallet, t: 'Reviewed withdrawals', d: 'Withdrawal requests go through a manual review.' }, { icon: BookOpen, t: 'Free learning', d: 'Core learning resources are available without a paywall.' }].map((f) => <div key={f.t} className="bg-white p-6"><f.icon size={21} className="text-[#718d5d]" /><h3 className="mt-12 font-display text-base font-black">{f.t}</h3><p className="mt-2 text-sm leading-6 text-black/45">{f.d}</p></div>)}</div></div></section>
 
-      <section className="container-app py-16 md:py-20"><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Why choose Earn &amp; Learn Pakistan</h2><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[{ icon: ShieldCheck, t: 'Admin-verified listings', d: 'Every opportunity is manually reviewed before it goes live.' }, { icon: TrendingUp, t: 'Transparent points ledger', d: 'Every point earned or spent is logged as a traceable transaction.' }, { icon: Wallet, t: 'Manual withdrawal review', d: 'A real person checks every withdrawal before it is marked paid.' }, { icon: BookOpen, t: 'Free skill-building', d: 'Core courses are free — no paywall to start learning.' }].map((f) => <div key={f.t} className="card p-5"><f.icon size={20} className="mb-3 text-brand-blue" /><p className="font-display text-sm font-bold text-navy-900">{f.t}</p><p className="mt-1 text-sm text-navy-500">{f.d}</p></div>)}</div></section>
+      {/* FAQ */}
+      <section className="border-y border-black/[0.07] bg-white py-20 sm:py-24"><div className="container-app max-w-4xl"><div className="mb-10"><p className="text-xs font-black uppercase tracking-[0.2em] text-black/35">Questions</p><h2 className="mt-2 font-display text-4xl font-black tracking-[-0.05em] sm:text-5xl">Before you start.</h2></div><div className="space-y-2">{faqs.map((f) => <FaqItem key={f.q} {...f} />)}</div></div></section>
 
-      <section className="bg-navy-50/60 py-16 md:py-20"><div className="container-app max-w-3xl"><h2 className="font-display text-2xl font-extrabold text-navy-900 md:text-3xl">Frequently asked questions</h2><div className="mt-6 space-y-2">{faqs.map((f) => <FaqItem key={f.q} {...f} />)}</div></div></section>
-      <section className="container-app py-16 md:py-20"><div className="card flex flex-col items-center gap-4 bg-gradient-to-br from-navy-900 to-navy-700 p-10 text-center text-white"><h2 className="font-display text-2xl font-extrabold md:text-3xl">Ready to start learning and earning?</h2><p className="max-w-lg text-navy-200">Join for free. No hidden fees, no guaranteed income promises — just real opportunities and a clear points system.</p><Link to="/signup" className="btn-success">Create Free Account <ArrowRight size={16} /></Link></div></section>
+      {/* CTA */}
+      <section className="container-app py-20 sm:py-28"><div className="relative overflow-hidden rounded-[2rem] bg-[#10110f] px-6 py-16 text-center text-white sm:px-12 sm:py-20"><div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[#718d5d]/20 blur-3xl" /><div className="relative"><p className="text-xs font-black uppercase tracking-[0.2em] text-[#91b477]">Your next chapter</p><h2 className="mx-auto mt-4 max-w-3xl font-display text-4xl font-black leading-[.95] tracking-[-0.05em] sm:text-6xl">Start with one skill. Build from there.</h2><p className="mx-auto mt-5 max-w-xl text-sm leading-6 text-white/45">Join for free and explore the platform at your own pace.</p><Link to="/signup" className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#91b477] px-7 py-3.5 text-sm font-black text-[#10110f] transition hover:bg-[#a5c38b]">Create free account <ArrowUpRight size={16} /></Link></div></div></section>
     </div>
   );
 }
 
-function FaqItem({ q, a }: { q: string; a: string }) { const [open, setOpen] = useState(false); return <div className="card overflow-hidden"><button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-5 py-4 text-left"><span className="font-display text-sm font-bold text-navy-900">{q}</span><ChevronDown size={18} className={`shrink-0 text-navy-400 transition-transform ${open ? 'rotate-180' : ''}`} /></button>{open && <p className="border-t border-navy-100 px-5 py-4 text-sm text-navy-600">{a}</p>}</div>; }
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return <div className="overflow-hidden rounded-2xl border border-black/[0.08] bg-white"><button onClick={() => setOpen(!open)} className="flex w-full items-center justify-between gap-5 px-5 py-5 text-left sm:px-6"><span className="font-display text-sm font-black sm:text-base">{q}</span><ChevronDown size={18} className={`shrink-0 text-black/35 transition-transform ${open ? 'rotate-180' : ''}`} /></button>{open && <p className="border-t border-black/[0.07] px-5 py-5 text-sm leading-6 text-black/50 sm:px-6">{a}</p>}</div>;
+}
