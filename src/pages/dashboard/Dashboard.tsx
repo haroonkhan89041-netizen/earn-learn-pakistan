@@ -7,6 +7,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { VerifiedBadge } from '@/components/ui/Badge';
+import './dashboard.css';
 
 type DashboardTask = { id: string; title: string; reward_points: number; instructions: string | null };
 type DashboardOpportunity = { id: string; title: string; verification_status: string; platform_name: string | null };
