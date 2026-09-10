@@ -20,6 +20,7 @@ const faqs = [
 ];
 
 const heroImage = 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=85';
+const globalHeroImage = 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2200&q=85';
 const learningImage = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=85';
 const workImage = 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1000&q=85';
 
@@ -51,6 +52,9 @@ export function Home() {
     <div className="bg-[#f7f7f2] text-[#10110f]">
       {/* HERO */}
       <section className="relative overflow-hidden bg-[#10110f] text-white">
+        <img src={globalHeroImage} alt="Global digital network and Earth" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.22] mix-blend-screen" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_35%,rgba(145,180,119,0.22),transparent_34%),linear-gradient(90deg,rgba(16,17,15,0.96)_0%,rgba(16,17,15,0.82)_45%,rgba(16,17,15,0.62)_100%)]" />
+        <div className="absolute inset-0 bg-[#10110f]/20" />
         <div className="absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[#718d5d]/20 blur-3xl" />
         <div className="absolute -bottom-48 left-1/3 h-[420px] w-[420px] rounded-full bg-white/[0.05] blur-3xl" />
         <div className="container-app relative py-14 sm:py-20 lg:py-24">
@@ -93,7 +97,7 @@ export function Home() {
             </div>
           </div>
         </div>
-        <div className="container-app flex items-center justify-between border-t border-white/10 py-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
+        <div className="container-app relative flex items-center justify-between border-t border-white/10 py-5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
           <span>Earn &amp; Learn Pakistan</span><span>Skills / Tasks / Opportunities</span>
         </div>
       </section>
