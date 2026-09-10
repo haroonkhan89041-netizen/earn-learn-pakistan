@@ -37,7 +37,7 @@ export function Certificate() {
         <p className="mt-6 text-xs font-bold uppercase tracking-[0.35em] text-navy-400">Earn & Learn Pakistan</p>
         <h2 className="mt-5 font-display text-4xl font-black text-navy-900">Certificate of Completion</h2>
         <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-navy-500">This certificate confirms that</p>
-        <p className="mt-3 text-2xl font-bold text-navy-900">{user?.user_metadata?.full_name || user?.email || 'Learner'}</p>
+        <p className="mt-3 text-2xl font-bold text-navy-900">{user?.email || 'Learner'}</p>
         <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-navy-500">has successfully completed the course</p>
         <p className="mt-3 font-display text-2xl font-extrabold text-brand-blue">{courseTitle}</p>
         <div className="mx-auto mt-10 h-px max-w-md bg-navy-200" />
