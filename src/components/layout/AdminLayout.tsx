@@ -5,6 +5,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
+const ADMIN_EMAIL = 'hk0870614@gmail.com';
+
 const items = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/admin/users', label: 'Users', icon: Users },
@@ -23,7 +25,8 @@ export function AdminLayout() {
   const { user, profile, loading } = useAuth();
   if (loading) return <div className="flex min-h-screen items-center justify-center text-navy-400">Loading…</div>;
   if (!user) return <Navigate to="/login" replace />;
-  if (profile?.role !== 'admin') return <Navigate to="/dashboard" replace />;
+  const isAdmin = user.email?.toLowerCase() === ADMIN_EMAIL || profile?.role === 'admin';
+  if (!isAdmin) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="min-h-screen bg-navy-50/50 md:flex">
