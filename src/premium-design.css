@@ -12,12 +12,13 @@
   --elp-border: rgba(15, 23, 42, .09);
 }
 
-html { background: var(--elp-soft); }
+html { background: var(--elp-soft); scroll-behavior: smooth; }
 body {
   background:
     radial-gradient(circle at 10% 0%, rgba(37,99,235,.035), transparent 25%),
     radial-gradient(circle at 90% 10%, rgba(124,58,237,.028), transparent 22%),
     var(--elp-soft);
+  color: var(--elp-ink);
 }
 
 ::selection { background: rgba(37,99,235,.22) !important; color: #0b1020; }
@@ -28,12 +29,13 @@ body {
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
 
-/* Shared cards — keeps existing functionality/classes intact */
+/* Shared cards */
 .card {
   border-color: var(--elp-border) !important;
   border-radius: 20px !important;
   box-shadow: 0 12px 35px rgba(15,23,42,.055) !important;
   transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  background: rgba(255,255,255,.94);
 }
 .card:hover {
   transform: translateY(-2px);
@@ -41,28 +43,41 @@ body {
   box-shadow: 0 18px 45px rgba(15,23,42,.085) !important;
 }
 
+/* Page headers */
+main h1, .dashboard-shell h1 {
+  letter-spacing: -.035em;
+}
+main h2, .dashboard-shell h2 {
+  letter-spacing: -.025em;
+}
+
 /* Shared buttons */
-.btn { border-radius: 13px !important; font-weight: 800 !important; }
-.btn-primary {
+.btn { border-radius: 13px !important; font-weight: 800 !important; transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+.btn-primary, .btn-primary:not(:disabled) {
   background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+  color: #fff !important;
   box-shadow: 0 8px 20px rgba(37,99,235,.18);
 }
-.btn-primary:hover { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 12px 25px rgba(37,99,235,.24); }
-.btn-secondary { background: linear-gradient(135deg, #0f172a, #1e293b) !important; }
-.btn-outline { background: rgba(255,255,255,.78) !important; }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.06); transform: translateY(-1px); box-shadow: 0 12px 25px rgba(37,99,235,.24); }
+.btn-secondary { background: linear-gradient(135deg, #0f172a, #1e293b) !important; color: #fff !important; }
+.btn-outline { border: 1px solid #dbe2ee !important; background: rgba(255,255,255,.82) !important; color: #172033 !important; border-radius: 13px !important; font-weight: 800 !important; transition: all .18s ease; }
+.btn-outline:hover { border-color: rgba(37,99,235,.35) !important; color: #2563eb !important; background: #fff !important; transform: translateY(-1px); }
+button:disabled { opacity: .6; cursor: not-allowed; }
 
 /* Shared form controls */
-.input {
+.input, select, textarea {
   min-height: 44px;
   border-radius: 13px !important;
   border-color: #dbe2ee !important;
   box-shadow: inset 0 1px 1px rgba(15,23,42,.02);
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
-.input:focus {
+.input:focus, select:focus, textarea:focus {
   border-color: #2563eb !important;
+  outline: none !important;
   box-shadow: 0 0 0 3px rgba(37,99,235,.10) !important;
 }
-.label { font-weight: 750 !important; }
+.label { font-weight: 750 !important; color: #26324a; }
 
 /* Common dashboard/content surfaces */
 .dashboard-shell {
@@ -72,23 +87,31 @@ body {
     #f5f7fb !important;
 }
 
+/* Navigation polish */
+nav a { transition: color .18s ease, background .18s ease, transform .18s ease; }
+nav a:hover { transform: translateX(1px); }
+
 /* Tables and data surfaces */
-table { border-collapse: separate; border-spacing: 0; }
+table { border-collapse: separate; border-spacing: 0; overflow: hidden; }
 thead th { letter-spacing: .02em; }
 tbody tr { transition: background .16s ease; }
 tbody tr:hover { background: rgba(37,99,235,.025); }
 
-/* Modern focus treatment */
+/* Common status/badge treatment */
+.badge { font-weight: 800 !important; letter-spacing: .01em; border-radius: 999px !important; }
+.badge-verified { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 9px; font-size: 11px; font-weight: 800; background: #ecfdf3; color: #15803d; }
+
+/* Links and interactive surfaces */
+a { transition: color .18s ease, opacity .18s ease; }
 button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 
-/* Smooth page-level interactions */
-a { transition: color .18s ease, opacity .18s ease; }
-
-/* Premium badge feel */
-.badge { font-weight: 800 !important; letter-spacing: .01em; }
+/* Subtle entrance animation for content pages */
+main > div { animation: elp-page-in .28s ease both; }
+@keyframes elp-page-in { from { opacity: .01; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
 /* Mobile polish */
 @media (max-width: 640px) {
   .card { border-radius: 17px !important; }
-  .btn { border-radius: 12px !important; }
+  .btn, .btn-outline { border-radius: 12px !important; }
+  main h1 { font-size: 1.5rem; }
 }
