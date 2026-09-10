@@ -8,16 +8,16 @@ import { useAuth } from '@/contexts/AuthContext';
 const ADMIN_EMAIL = 'hk0870614@gmail.com';
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/dashboard/opportunities', label: 'Opportunities', icon: Briefcase },
-  { to: '/dashboard/tasks', label: 'Daily Tasks', icon: ListChecks },
-  { to: '/dashboard/learn', label: 'Learn Skills', icon: GraduationCap },
-  { to: '/dashboard/rewards', label: 'Rewards', icon: Wallet },
-  { to: '/dashboard/referrals', label: 'Referrals', icon: Users },
-  { to: '/dashboard/leaderboard', label: 'Leaderboard', icon: Trophy },
-  { to: '/dashboard/notifications', label: 'Notifications', icon: Bell },
-  { to: '/dashboard/profile', label: 'Profile', icon: User },
-  { to: '/dashboard/support', label: 'Support', icon: LifeBuoy },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, tone: 'blue', end: true },
+  { to: '/dashboard/opportunities', label: 'Opportunities', icon: Briefcase, tone: 'violet' },
+  { to: '/dashboard/tasks', label: 'Daily Tasks', icon: ListChecks, tone: 'emerald' },
+  { to: '/dashboard/learn', label: 'Learn Skills', icon: GraduationCap, tone: 'cyan' },
+  { to: '/dashboard/rewards', label: 'Rewards', icon: Wallet, tone: 'amber' },
+  { to: '/dashboard/referrals', label: 'Referrals', icon: Users, tone: 'orange' },
+  { to: '/dashboard/leaderboard', label: 'Leaderboard', icon: Trophy, tone: 'gold' },
+  { to: '/dashboard/notifications', label: 'Notifications', icon: Bell, tone: 'rose', badge: '3' },
+  { to: '/dashboard/profile', label: 'Profile', icon: User, tone: 'indigo' },
+  { to: '/dashboard/support', label: 'Support', icon: LifeBuoy, tone: 'teal' },
 ];
 
 const mobileNavItems = navItems.slice(0, 5);
@@ -33,41 +33,83 @@ export function DashboardLayout() {
   const isAdmin = user.email?.toLowerCase() === ADMIN_EMAIL || profile?.role === 'admin';
 
   return (
-    <div className="min-h-screen bg-navy-50/50 md:flex">
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-navy-100 bg-white md:flex">
-        <Link to="/" className="flex items-center gap-2 px-6 py-5 font-display text-base font-extrabold text-navy-900">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-navy-900 text-white"><Logo size={16} /></span>
-          Earn &amp; Learn PK
-        </Link>
-        <nav className="flex-1 space-y-1 px-3">
-          {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${isActive ? 'bg-brand-blue/10 text-brand-blue' : 'text-navy-600 hover:bg-navy-50'}`}>
-              <item.icon size={18} /> {item.label}
+    <div className="dashboard-shell min-h-screen md:flex">
+      <aside className="dashboard-sidebar hidden w-72 shrink-0 flex-col md:flex">
+        <div className="sidebar-brand-wrap">
+          <Link to="/" className="sidebar-brand" aria-label="Earn & Learn Pakistan home">
+            <span className="sidebar-brand-mark"><Logo size={19} strokeWidth={2.4} /></span>
+            <span>
+              <span className="sidebar-brand-title">Earn &amp; Learn</span>
+              <span className="sidebar-brand-subtitle">Pakistan</span>
+            </span>
+          </Link>
+        </div>
+
+        <div className="sidebar-section-label">Workspace</div>
+        <nav className="sidebar-nav" aria-label="Dashboard navigation">
+          {navItems.slice(0, 7).map((item) => (
+            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `dashboard-nav-item ${isActive ? 'is-active' : ''}`}>
+              {({ isActive }) => (
+                <>
+                  <span className={`dashboard-nav-icon tone-${item.tone}`}><item.icon size={18} strokeWidth={isActive ? 2.5 : 2} /></span>
+                  <span className="dashboard-nav-label">{item.label}</span>
+                </>
+              )}
             </NavLink>
           ))}
+        </nav>
+
+        <div className="sidebar-section-label sidebar-section-account">Account</div>
+        <nav className="sidebar-nav" aria-label="Account navigation">
+          {navItems.slice(7).map((item) => (
+            <NavLink key={item.to} to={item.to} className={({ isActive }) => `dashboard-nav-item ${isActive ? 'is-active' : ''}`}>
+              {({ isActive }) => (
+                <>
+                  <span className={`dashboard-nav-icon tone-${item.tone}`}><item.icon size={18} strokeWidth={isActive ? 2.5 : 2} /></span>
+                  <span className="dashboard-nav-label">{item.label}</span>
+                  {item.badge && <span className="dashboard-nav-badge">{item.badge}</span>}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="sidebar-bottom">
           {isAdmin && (
-            <NavLink to="/admin" className="mt-2 flex items-center gap-3 rounded-xl bg-navy-900 px-3 py-2.5 text-sm font-medium text-white">
-              <ShieldCheck size={18} /> Admin Panel
+            <NavLink to="/admin" className="admin-nav-item">
+              <span className="admin-nav-icon"><ShieldCheck size={17} /></span>
+              <span>Admin Panel</span>
             </NavLink>
           )}
-        </nav>
-        <button onClick={signOut} className="m-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-navy-500 hover:bg-navy-50">
-          <LogOut size={18} /> Log out
-        </button>
+          <button onClick={signOut} className="logout-nav-item">
+            <span className="logout-nav-icon"><LogOut size={17} /></span>
+            <span>Log out</span>
+          </button>
+          <div className="sidebar-user-card">
+            <span className="sidebar-user-avatar">{(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}</span>
+            <span className="sidebar-user-copy">
+              <strong>{profile?.full_name || 'Member'}</strong>
+              <small>Earn &amp; Learn member</small>
+            </span>
+          </div>
+        </div>
       </aside>
-      <div className="flex-1">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-navy-100 bg-white px-4 py-3 md:hidden">
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="dashboard-mobile-header md:hidden">
           <Link to="/" className="flex items-center gap-2 font-display text-sm font-extrabold text-navy-900">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-navy-900 text-white"><Logo size={14} /></span>
-            Earn &amp; Learn PK
+            <span className="sidebar-brand-mark mobile-brand-mark"><Logo size={15} /></span>
+            <span>Earn &amp; Learn PK</span>
           </Link>
-          <Link to="/dashboard/profile" className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-100 text-navy-600"><User size={16} /></Link>
+          <Link to="/dashboard/profile" className="mobile-profile-button"><User size={16} /></Link>
         </header>
-        <main className="container-app py-6 pb-24 md:pb-8"><Outlet /></main>
-        <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-navy-100 bg-white md:hidden">
+        <main className="container-app w-full flex-1 py-6 pb-24 md:pb-8"><Outlet /></main>
+
+        <nav className="dashboard-mobile-nav fixed inset-x-0 bottom-0 z-30 md:hidden" aria-label="Mobile dashboard navigation">
           {mobileNavItems.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `flex flex-1 flex-col items-center gap-1 py-2.5 text-[11px] font-medium ${isActive ? 'text-brand-blue' : 'text-navy-400'}`}>
-              <item.icon size={19} />{item.label.split(' ')[0]}
+            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `mobile-nav-item ${isActive ? 'is-active' : ''}`}>
+              <span className={`mobile-nav-icon tone-${item.tone}`}><item.icon size={18} /></span>
+              <span>{item.label.split(' ')[0]}</span>
             </NavLink>
           ))}
         </nav>
