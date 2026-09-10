@@ -2,22 +2,23 @@ import { NavLink, Outlet, Link, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, ListChecks, GraduationCap, Wallet, Users,
   Trophy, Bell, User, LifeBuoy, LogOut, GraduationCap as Logo, ShieldCheck,
+  ChevronRight, Sparkles, CircleDollarSign,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 const ADMIN_EMAIL = 'hk0870614@gmail.com';
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, tone: 'blue', end: true },
-  { to: '/dashboard/opportunities', label: 'Opportunities', icon: Briefcase, tone: 'violet' },
-  { to: '/dashboard/tasks', label: 'Daily Tasks', icon: ListChecks, tone: 'emerald' },
-  { to: '/dashboard/learn', label: 'Learn Skills', icon: GraduationCap, tone: 'cyan' },
-  { to: '/dashboard/rewards', label: 'Rewards', icon: Wallet, tone: 'amber' },
-  { to: '/dashboard/referrals', label: 'Referrals', icon: Users, tone: 'orange' },
-  { to: '/dashboard/leaderboard', label: 'Leaderboard', icon: Trophy, tone: 'gold' },
-  { to: '/dashboard/notifications', label: 'Notifications', icon: Bell, tone: 'rose', badge: '3' },
-  { to: '/dashboard/profile', label: 'Profile', icon: User, tone: 'indigo' },
-  { to: '/dashboard/support', label: 'Support', icon: LifeBuoy, tone: 'teal' },
+  { to: '/dashboard', label: 'Dashboard', description: 'Your overview', icon: LayoutDashboard, tone: 'blue', end: true },
+  { to: '/dashboard/opportunities', label: 'Opportunities', description: 'Find ways to earn', icon: Briefcase, tone: 'violet' },
+  { to: '/dashboard/tasks', label: 'Daily Tasks', description: 'Complete & earn', icon: ListChecks, tone: 'emerald' },
+  { to: '/dashboard/learn', label: 'Learn Skills', description: 'Grow your skills', icon: GraduationCap, tone: 'cyan' },
+  { to: '/dashboard/rewards', label: 'Rewards', description: 'Track your earnings', icon: Wallet, tone: 'amber' },
+  { to: '/dashboard/referrals', label: 'Referrals', description: 'Invite & earn', icon: Users, tone: 'orange' },
+  { to: '/dashboard/leaderboard', label: 'Leaderboard', description: 'See top earners', icon: Trophy, tone: 'gold' },
+  { to: '/dashboard/notifications', label: 'Notifications', description: 'Stay up to date', icon: Bell, tone: 'rose', badge: '3' },
+  { to: '/dashboard/profile', label: 'Profile', description: 'Manage your account', icon: User, tone: 'indigo' },
+  { to: '/dashboard/support', label: 'Support', description: 'We are here to help', icon: LifeBuoy, tone: 'teal' },
 ];
 
 const mobileNavItems = navItems.slice(0, 5);
@@ -31,67 +32,93 @@ export function DashboardLayout() {
   if (!user) return <Navigate to="/login" replace />;
 
   const isAdmin = user.email?.toLowerCase() === ADMIN_EMAIL || profile?.role === 'admin';
+  const memberName = profile?.full_name || 'Member';
+  const memberInitial = memberName.charAt(0).toUpperCase();
 
   return (
     <div className="dashboard-shell min-h-screen md:flex">
-      <aside className="dashboard-sidebar hidden w-72 shrink-0 flex-col md:flex">
-        <div className="sidebar-brand-wrap">
+      <aside className="dashboard-sidebar hidden w-[290px] shrink-0 flex-col md:flex">
+        <div className="sidebar-top">
           <Link to="/" className="sidebar-brand" aria-label="Earn & Learn Pakistan home">
-            <span className="sidebar-brand-mark"><Logo size={19} strokeWidth={2.4} /></span>
-            <span>
+            <span className="sidebar-brand-mark"><Logo size={20} strokeWidth={2.5} /></span>
+            <span className="sidebar-brand-copy">
               <span className="sidebar-brand-title">Earn &amp; Learn</span>
-              <span className="sidebar-brand-subtitle">Pakistan</span>
+              <span className="sidebar-brand-subtitle">PAKISTAN</span>
             </span>
+            <span className="sidebar-brand-spark"><Sparkles size={14} /></span>
           </Link>
+
+          <div className="sidebar-member-card">
+            <div className="sidebar-member-avatar">{memberInitial}</div>
+            <div className="sidebar-member-copy">
+              <span className="sidebar-member-eyebrow">WELCOME BACK</span>
+              <strong>{memberName}</strong>
+              <span>{user.email || 'Earn & Learn member'}</span>
+            </div>
+            <span className="sidebar-member-status" title="Active member" />
+          </div>
+
+          <div className="sidebar-progress-card">
+            <div className="sidebar-progress-head">
+              <span><CircleDollarSign size={14} /> Member progress</span>
+              <strong>Level 1</strong>
+            </div>
+            <div className="sidebar-progress-track"><span /></div>
+            <p>Complete tasks and learn skills to unlock more.</p>
+          </div>
         </div>
 
-        <div className="sidebar-section-label">Workspace</div>
-        <nav className="sidebar-nav" aria-label="Dashboard navigation">
-          {navItems.slice(0, 7).map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `dashboard-nav-item ${isActive ? 'is-active' : ''}`}>
-              {({ isActive }) => (
-                <>
-                  <span className={`dashboard-nav-icon tone-${item.tone}`}><item.icon size={18} strokeWidth={isActive ? 2.5 : 2} /></span>
-                  <span className="dashboard-nav-label">{item.label}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="sidebar-scroll">
+          <div className="sidebar-section-label"><span>01</span> Workspace</div>
+          <nav className="sidebar-nav" aria-label="Dashboard navigation">
+            {navItems.slice(0, 7).map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.end} className={({ isActive }) => `dashboard-nav-item ${isActive ? 'is-active' : ''}`}>
+                {({ isActive }) => (
+                  <>
+                    <span className={`dashboard-nav-icon tone-${item.tone}`}><item.icon size={18} strokeWidth={isActive ? 2.5 : 2} /></span>
+                    <span className="dashboard-nav-copy">
+                      <span className="dashboard-nav-label">{item.label}</span>
+                      <span className="dashboard-nav-description">{item.description}</span>
+                    </span>
+                    <span className="dashboard-nav-arrow"><ChevronRight size={15} /></span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
 
-        <div className="sidebar-section-label sidebar-section-account">Account</div>
-        <nav className="sidebar-nav" aria-label="Account navigation">
-          {navItems.slice(7).map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => `dashboard-nav-item ${isActive ? 'is-active' : ''}`}>
-              {({ isActive }) => (
-                <>
-                  <span className={`dashboard-nav-icon tone-${item.tone}`}><item.icon size={18} strokeWidth={isActive ? 2.5 : 2} /></span>
-                  <span className="dashboard-nav-label">{item.label}</span>
-                  {item.badge && <span className="dashboard-nav-badge">{item.badge}</span>}
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
+          <div className="sidebar-section-label sidebar-section-account"><span>02</span> Account</div>
+          <nav className="sidebar-nav" aria-label="Account navigation">
+            {navItems.slice(7).map((item) => (
+              <NavLink key={item.to} to={item.to} className={({ isActive }) => `dashboard-nav-item ${isActive ? 'is-active' : ''}`}>
+                {({ isActive }) => (
+                  <>
+                    <span className={`dashboard-nav-icon tone-${item.tone}`}><item.icon size={18} strokeWidth={isActive ? 2.5 : 2} /></span>
+                    <span className="dashboard-nav-copy">
+                      <span className="dashboard-nav-label">{item.label}</span>
+                      <span className="dashboard-nav-description">{item.description}</span>
+                    </span>
+                    {item.badge && <span className="dashboard-nav-badge">{item.badge}</span>}
+                    <span className="dashboard-nav-arrow"><ChevronRight size={15} /></span>
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
         <div className="sidebar-bottom">
           {isAdmin && (
             <NavLink to="/admin" className="admin-nav-item">
-              <span className="admin-nav-icon"><ShieldCheck size={17} /></span>
-              <span>Admin Panel</span>
+              <span className="admin-nav-icon"><ShieldCheck size={16} /></span>
+              <span><strong>Admin Panel</strong><small>Manage platform</small></span>
+              <ChevronRight size={15} />
             </NavLink>
           )}
           <button onClick={signOut} className="logout-nav-item">
-            <span className="logout-nav-icon"><LogOut size={17} /></span>
+            <span className="logout-nav-icon"><LogOut size={16} /></span>
             <span>Log out</span>
           </button>
-          <div className="sidebar-user-card">
-            <span className="sidebar-user-avatar">{(profile?.full_name || user.email || 'U').charAt(0).toUpperCase()}</span>
-            <span className="sidebar-user-copy">
-              <strong>{profile?.full_name || 'Member'}</strong>
-              <small>Earn &amp; Learn member</small>
-            </span>
-          </div>
         </div>
       </aside>
 
@@ -101,9 +128,9 @@ export function DashboardLayout() {
             <span className="sidebar-brand-mark mobile-brand-mark"><Logo size={15} /></span>
             <span>Earn &amp; Learn PK</span>
           </Link>
-          <Link to="/dashboard/profile" className="mobile-profile-button"><User size={16} /></Link>
+          <Link to="/dashboard/profile" className="mobile-profile-button">{memberInitial}</Link>
         </header>
-        <main className="container-app w-full flex-1 py-6 pb-24 md:pb-8"><Outlet /></main>
+        <main className="container-app w-full flex-1 py-6 pb-24 md:py-8 md:pb-8"><Outlet /></main>
 
         <nav className="dashboard-mobile-nav fixed inset-x-0 bottom-0 z-30 md:hidden" aria-label="Mobile dashboard navigation">
           {mobileNavItems.map((item) => (
