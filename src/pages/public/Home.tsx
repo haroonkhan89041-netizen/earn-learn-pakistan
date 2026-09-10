@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, ShieldCheck, BookOpen, ListChecks, TrendingUp, Users, Wallet, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ShieldCheck, BookOpen, ListChecks, TrendingUp, Users, Wallet, ChevronDown, CheckCircle2, Globe2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { DEMO_OPPORTUNITIES, DEMO_COURSES } from '@/data/demoData';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
@@ -52,14 +52,17 @@ export function Home() {
     <div className="bg-[#f7f7f2] text-[#10110f]">
       {/* HERO */}
       <section className="relative overflow-hidden bg-[#10110f] text-white">
-        <img src={globalHeroImage} alt="Global digital network and Earth" className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.22] mix-blend-screen" aria-hidden="true" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_35%,rgba(145,180,119,0.22),transparent_34%),linear-gradient(90deg,rgba(16,17,15,0.96)_0%,rgba(16,17,15,0.82)_45%,rgba(16,17,15,0.62)_100%)]" />
-        <div className="absolute inset-0 bg-[#10110f]/20" />
+        <div className="pointer-events-none absolute left-[-115px] top-[70px] h-[500px] w-[500px] rounded-full sm:left-[-90px] sm:top-[80px] sm:h-[610px] sm:w-[610px]" aria-hidden="true">
+          <Globe2 size="100%" strokeWidth={0.7} className="h-full w-full text-[#4f8cff] opacity-[0.14]" />
+          <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_42%_38%,rgba(79,140,255,0.18),transparent_48%,rgba(16,17,15,0.55)_76%,rgba(16,17,15,0.95)_100%)]" />
+          <img src={globalHeroImage} alt="" className="absolute inset-[15%] h-[70%] w-[70%] rounded-full object-cover opacity-[0.08] mix-blend-screen" />
+        </div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_40%,rgba(79,140,255,0.10),transparent_30%),linear-gradient(90deg,rgba(16,17,15,0.98)_0%,rgba(16,17,15,0.88)_48%,rgba(16,17,15,0.70)_100%)]" />
         <div className="absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-[#718d5d]/20 blur-3xl" />
         <div className="absolute -bottom-48 left-1/3 h-[420px] w-[420px] rounded-full bg-white/[0.05] blur-3xl" />
         <div className="container-app relative py-14 sm:py-20 lg:py-24">
           <div className="grid items-end gap-12 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
-            <div className="max-w-3xl">
+            <div className="relative z-10 max-w-3xl">
               <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3.5 py-2 text-[11px] font-bold uppercase tracking-[0.16em] text-white/70">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#91b477]" /> Built for Pakistan
               </div>
@@ -84,7 +87,7 @@ export function Home() {
               </div>
             </div>
 
-            <div className="relative lg:mb-2">
+            <div className="relative z-10 lg:mb-2">
               <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-2xl">
                 <img src={heroImage} alt="Professionals learning and working online" className="h-[360px] w-full object-cover grayscale-[15%] sm:h-[440px]" loading="eager" />
               </div>
