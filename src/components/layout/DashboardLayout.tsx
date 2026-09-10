@@ -2,7 +2,7 @@ import { NavLink, Outlet, Link, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, ListChecks, GraduationCap, Wallet, Users,
   Trophy, Bell, User, LifeBuoy, LogOut, GraduationCap as Logo, ShieldCheck,
-  ChevronRight, Sparkles, CircleDollarSign,
+  ChevronRight, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -56,15 +56,6 @@ export function DashboardLayout() {
               <span>{user.email || 'Earn & Learn member'}</span>
             </div>
             <span className="sidebar-member-status" title="Active member" />
-          </div>
-
-          <div className="sidebar-progress-card">
-            <div className="sidebar-progress-head">
-              <span><CircleDollarSign size={14} /> Member progress</span>
-              <strong>Level 1</strong>
-            </div>
-            <div className="sidebar-progress-track"><span /></div>
-            <p>Complete tasks and learn skills to unlock more.</p>
           </div>
         </div>
 
