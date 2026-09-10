@@ -34,6 +34,7 @@ import { AdminUsers } from '@/pages/admin/AdminUsers';
 import { AdminOpportunities } from '@/pages/admin/AdminOpportunities';
 import { AdminTasks } from '@/pages/admin/AdminTasks';
 import { AdminCourses } from '@/pages/admin/AdminCourses';
+import { AdminLessons } from '@/pages/admin/AdminLessons';
 import { AdminWithdrawals } from '@/pages/admin/AdminWithdrawals';
 import { AdminAds } from '@/pages/admin/AdminAds';
 import { AdminAnalytics } from '@/pages/admin/AdminAnalytics';
@@ -54,7 +55,7 @@ export default function App() {
             <Route index element={<Dashboard />} /><Route path="opportunities" element={<Opportunities />} /><Route path="tasks" element={<DailyTasks />} /><Route path="learn" element={<LearnSkills />} /><Route path="learn/:slug" element={<CourseDetail />} /><Route path="rewards" element={<Rewards />} /><Route path="referrals" element={<Referrals />} /><Route path="leaderboard" element={<Leaderboard />} /><Route path="notifications" element={<Notifications />} /><Route path="profile" element={<Profile />} /><Route path="support" element={<Support />} />
           </Route>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminOverview />} /><Route path="users" element={<AdminUsers />} /><Route path="opportunities" element={<AdminOpportunities />} /><Route path="tasks" element={<AdminTasks />} /><Route path="courses" element={<AdminCourses />} /><Route path="withdrawals" element={<AdminWithdrawals />} /><Route path="ads" element={<AdminAds />} /><Route path="analytics" element={<AdminAnalytics />} /><Route path="settings" element={<AdminSettings />} /><Route path="support" element={<AdminSupport />} />
+            <Route index element={<AdminOverview />} /><Route path="users" element={<AdminUsers />} /><Route path="opportunities" element={<AdminOpportunities />} /><Route path="tasks" element={<AdminTasks />} /><Route path="courses" element={<AdminCourses />} /><Route path="courses/lessons" element={<AdminLessons />} /><Route path="withdrawals" element={<AdminWithdrawals />} /><Route path="ads" element={<AdminAds />} /><Route path="analytics" element={<AdminAnalytics />} /><Route path="settings" element={<AdminSettings />} /><Route path="support" element={<AdminSupport />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
