@@ -49,7 +49,7 @@ export function DashboardLayout() {
               <item.icon size={18} /> {item.label}
             </NavLink>
           ))}
-          {profile?.is_admin && (
+          {profile?.role === 'admin' && (
             <NavLink to="/admin" className="mt-2 flex items-center gap-3 rounded-xl bg-navy-900 px-3 py-2.5 text-sm font-medium text-white">
               <ShieldCheck size={18} /> Admin Panel
             </NavLink>
